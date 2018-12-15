@@ -7,7 +7,7 @@ const app = express();
 
 const mongoose = require('mongoose');
 var dev_db_url = process.env.POLYMOD_TEST_URI;
-mongoose.connect(dev_db_url);
+mongoose.connect(dev_db_url, { useNewUrlParser: true });
 mongoose.promise = global.Promise;
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'ERROR!'));

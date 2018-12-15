@@ -7,7 +7,8 @@ exports.synthModule = function(req, res) {
 exports.synthModule_create = function(req, res) {
   var synthModule = new SynthModule(
     {
-      name: req.body.name
+      name: req.body.name,
+	  description: req.body.description
     }
   );
   
