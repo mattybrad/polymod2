@@ -19,3 +19,10 @@ exports.synthModule_create = function(req, res) {
     res.send('CREATED');
   });
 };
+
+exports.synthModule_details = function(req, res) {
+	SynthModule.findById(req.params.id, function(err, synthModule) {
+		if(err) return next(err);
+		res.send(synthModule);
+	})
+};
