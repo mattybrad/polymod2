@@ -1,6 +1,6 @@
 const SynthModule = require('../models/synthmodule.model');
 
-exports.synthModule = function(req, res) {
+exports.test = function(req, res) {
   res.send('Greetings from the SynthModule controller');
 };
 
