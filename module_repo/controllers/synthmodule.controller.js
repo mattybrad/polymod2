@@ -16,13 +16,27 @@ exports.synthModule_create = function(req, res) {
     if(err) {
       return next(err);
     }
-    res.send('CREATED');
+    res.send('Synth module created');
   });
 };
 
 exports.synthModule_details = function(req, res) {
-	SynthModule.findById(req.params.id, function(err, synthModule) {
+	SynthModule.findOne({_id:req.params.id}, function(err, synthModule) {
 		if(err) return next(err);
 		res.send(synthModule);
+	})
+};
+
+exports.synthModule_update = function(req, res) {
+	SynthModule.findOneAndUpdate({_id:req.params.id}, {$set: req.body}, function(err, synthModule) {
+		if(err) return next(err);
+		res.send('Synth module updated');
+	})
+};
+
+exports.synthModule_delete = function(req, res) {
+	SynthModule.findOneAndDelete({_id:req.params.id}, function(err) {
+		if(err) return next(err);
+		res.send('Synth module deleted');
 	})
 };
