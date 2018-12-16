@@ -40,3 +40,10 @@ exports.synthModule_delete = function(req, res) {
 		res.send('Synth module deleted');
 	})
 };
+
+exports.synthModule_list = function(req, res) {
+	SynthModule.find({}, function(err, synthModule) {
+		if(err) return next(err);
+		res.send(synthModule);
+	})
+};
