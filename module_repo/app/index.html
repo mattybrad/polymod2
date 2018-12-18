@@ -9,9 +9,17 @@
     <script>
       $.ajax({
         url: "synthmodules/",
-        success: function(result) {
-          for(var i = 0; i < result.length; i ++) {
-            $('#moduleList').append('<div>'+result[i].name+'</div>');
+        success: function(res) {
+          for(var i = 0; i < res.length; i ++) {
+            var moduleBlock = $('<div/>');
+            var moduleTitle = $('<a/>');
+            var moduleDetails = $('<p/>');
+            moduleTitle.attr('href', '/synthmodules/'+res[i]._id);
+            moduleTitle.html(res[i].name);
+            moduleDetails.html(res[i].description)
+            moduleBlock.append(moduleTitle);
+            moduleBlock.append(moduleDetails);
+            $('#moduleList').append(moduleBlock);
           }
         }
       })
