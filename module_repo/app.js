@@ -14,6 +14,7 @@ db.on('error', console.error.bind(console, 'ERROR!'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
 app.use('/synthmodules', synthModule);
+app.use('/', express.static('app'));
 
 var port = 1234;
 app.listen(port, () => {

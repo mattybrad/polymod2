@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <title>Module Repo</title>
+    <script src="jquery-3.3.1.min.js"></script>
+  </head>
+  <body>
+    <h1>Modules</h1>
+    <div id="moduleList"></div>
+    <script>
+      $.ajax({
+        url: "synthmodules/",
+        success: function(result) {
+          for(var i = 0; i < result.length; i ++) {
+            $('#moduleList').append('<div>'+result[i].name+'</div>');
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
