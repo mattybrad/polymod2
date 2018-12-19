@@ -2,6 +2,7 @@
   <head>
     <title>Module Repo</title>
     <script src="jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
     <h1>Modules</h1>
@@ -16,7 +17,7 @@
             var moduleDetails = $('<p/>');
             moduleTitle.attr('href', '/synthmodules/'+res[i]._id);
             moduleTitle.html(res[i].name);
-            moduleDetails.html(res[i].description)
+            moduleDetails.html(res[i].description);
             moduleBlock.append(moduleTitle);
             moduleBlock.append(moduleDetails);
             $('#moduleList').append(moduleBlock);

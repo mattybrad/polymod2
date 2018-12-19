@@ -1,0 +1,41 @@
+pin	function
+0	MIDI input
+1	error LED
+2	LCD shift register
+3	LCD shift register
+4	LCD shift register
+5	socket data
+6	reserved for audio board
+7	reserved for audio board
+8	module ID data
+9	reserved for audio board
+10	reserved for audio board
+11	reserved for audio board
+12	reserved for audio board
+13	reserved for audio board
+14	reserved for audio board
+15	reserved for audio board
+16	analog data
+17	mono/poly switch
+18	reserved for audio board
+19	reserved for audio board
+20	
+21	
+22	reserved for audio board
+23	reserved for audio board
+24	address A0
+25	address A1
+26	address A2
+27	address B0
+28	address B1
+29	address B2
+30	address C0
+31	address C1
+32	address C2
+33	address D0
+34	address D1
+35	address D2
+36	LED shift registers?
+37	LED shift registers?
+38	LED shift registers?
+39	LED shift registers?
