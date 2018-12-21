@@ -15,17 +15,17 @@ pin	function
 13	reserved for audio board
 14	reserved for audio board
 15	reserved for audio board
-16	analog data
-17	mono/poly switch
+16	module analog data in
+17	input shift register clock
 18	reserved for audio board
 19	reserved for audio board
-20	
-21	
+20	input shift register latch
+21	input shift register data in
 22	reserved for audio board
 23	reserved for audio board
-24	address A0
-25	address A1
-26	address A2
+24	address A0 (could be rolled into LCD shift register)
+25	address A1 (could be rolled into LCD shift register)
+26	address A2 (could be rolled into LCD shift register)
 27	address B0
 28	address B1
 29	address B2
@@ -35,7 +35,7 @@ pin	function
 33	address D0
 34	address D1
 35	address D2
-36	LED shift registers?
-37	LED shift registers?
-38	LED shift registers?
-39	LED shift registers?
+36	module shift register clock
+37	module shift register latch
+38	module shift register data (out)
+39	module auxiliary data in
