@@ -30,7 +30,7 @@ AudioConnection* masterConnections[MAX_POLYPHONY]; // connections from polyphoni
 Master masterModules[MAX_POLYPHONY]; // array of master modules
 
 void setup() {
-  
+  // initialise pins
 }
 
 int a,b,c,d; // loop index variables
@@ -47,6 +47,8 @@ void loop() {
   for(a=0;a<8;a++) {
     // set multiplexer to route connection test voltage to module A
     // set multiplexer to route ID number data from module A
+
+    // update module list
     
     for(b=0;b<8;b++) {
       // set multiplexeter to route connection test voltage to module A, socket B
@@ -73,6 +75,8 @@ void loop() {
           // read analog data from module C, channel D
 
           // if applicable, read analog data from auxiliary multiplexer on module C, channel D
+
+          // read serial data from MIDI port
           
         }
       }
