@@ -5,10 +5,14 @@
 #include <SD.h>
 #include <SerialFlash.h>
 
-// include base module, master module and patch cable classes
+// other libraries
+#include <Bounce2.h>
+
+// include menu, base module, master module and patch cable classes
 #include "Module.h"
 #include "Master.h"
 #include "PatchCable.h"
+#include "Menu.h"
 
 // include specific modules - this part can be generated automatically
 // AUTO GENERATED INCLUDE STATEMENTS GOES HERE
@@ -17,6 +21,12 @@
 #define MAX_MODULES 8 // maybe go up to 16+ later
 #define MAX_POLYPHONY 4
 #define MAX_CABLES 32 // should be >= 8 * MAX_POLYPHONY * MAX_MODULES / 2 to avoid problems
+
+// define pins
+#define DEC_BUTTON_PIN 0
+#define INC_BUTTON_PIN 1
+#define YES_BUTTON_PIN 2
+#define NO_BUTTON_PIN 3
 
 // more definitions
 Module *modules[MAX_MODULES][MAX_POLYPHONY]; // all currently used modules
@@ -28,9 +38,24 @@ AudioConnection con1(mainMixer,0,mainOutput,0); // connect main mixer to output 
 AudioConnection con2(mainMixer,0,mainOutput,1); // connect main mixer to output (right)
 AudioConnection* masterConnections[MAX_POLYPHONY]; // connections from polyphonic channels to output mixer
 Master masterModules[MAX_POLYPHONY]; // array of master modules
+Menu menu = Menu();
+
+// buttons
+Bounce incButton = Bounce();
+Bounce decButton = Bounce();
+Bounce yesButton = Bounce();
+Bounce noButton = Bounce();
 
 void setup() {
-  // initialise pins
+  Serial.begin(9600);
+  incButton.attach(INC_BUTTON_PIN,INPUT_PULLUP);
+  decButton.attach(DEC_BUTTON_PIN,INPUT_PULLUP);
+  yesButton.attach(YES_BUTTON_PIN,INPUT_PULLUP);
+  noButton.attach(NO_BUTTON_PIN,INPUT_PULLUP);
+  incButton.interval(25);
+  decButton.interval(25);
+  yesButton.interval(25);
+  noButton.interval(25);
 }
 
 int a,b,c,d; // loop index variables
@@ -82,4 +107,21 @@ void loop() {
       }
     }
   }
+
+  // menu button update code, here for now but will move inside loop at some point
+  incButton.update();
+  decButton.update();
+  yesButton.update();
+  noButton.update();
+  if(incButton.fell()) {
+    menu.incrementValue();
+  } else if(decButton.fell()) {
+    menu.decrementValue();
+  } else if(yesButton.fell()) {
+    menu.confirm();
+  } else if(noButton.fell()) {
+    menu.cancel();
+  }
 }
+
+
