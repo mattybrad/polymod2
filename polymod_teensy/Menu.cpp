@@ -12,6 +12,7 @@ Menu::Menu() {
     msLoad.addItem(patchString);
     msSave.addItem(patchString);
   }
+  msCableInfo.addItem("...");
   currentSet = &msHome;
 }
 
@@ -33,23 +34,29 @@ void Menu::handleValueChange() {
 
 void Menu::confirm() {
   int id = currentSet->getID();
-  if(id == 0) {
+  if(id == MS_HOME) {
     if(currentSet->listIndex == 0) currentSet = &msLoad; 
     else if(currentSet->listIndex == 1) currentSet = &msSave;
-  } else if(id == 1) {
+  } else if(id == MS_LOAD) {
     // load patch
-    currentSet = &msHome;
-  } else if(id == 2) {
+    currentSet = &msAttachCables;
+  } else if(id == MS_SAVE) {
     // save patch (check if slot is free)
     if(currentSet->listIndex < 2) currentSet = &msSaveConfirm;
+    else currentSet = &msHome;
+  } else if(id == MS_SAVE_CONFIRM) {
+    currentSet = &msHome;
+  } else if(id == MS_ATTACH_CABLES) {
+    currentSet = &msCableInfo;
   }
+  currentSet->listIndex = 0;
   displayText();
 }
 
 void Menu::cancel() {
   int id = currentSet->getID();
-  if(id == 1 || id == 2) currentSet = &msHome;
-  else if(id == 3) currentSet = &msSave;
+  if(id == 3) currentSet = &msSave;
+  else currentSet = &msHome;
   displayText();
 }
 

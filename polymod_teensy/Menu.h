@@ -3,6 +3,13 @@
 #include "MenuSet.h"
 #include "Arduino.h"
 
+#define MS_HOME 0
+#define MS_LOAD 1
+#define MS_SAVE 2
+#define MS_SAVE_CONFIRM 3
+#define MS_ATTACH_CABLES 4
+#define MS_CABLE_INFO 5
+
 class Menu {
   public:
     Menu();
@@ -15,10 +22,12 @@ class Menu {
 
   private:
     void handleValueChange();
-    MenuSet msHome = MenuSet(0, "PolyMod 2.0");
-    MenuSet msLoad = MenuSet(1, "Load patch");
-    MenuSet msSave = MenuSet(2, "Save patch");
-    MenuSet msSaveConfirm = MenuSet(3, "Confirm save?");
+    MenuSet msHome = MenuSet(MS_HOME, "PolyMod 2.0");
+    MenuSet msLoad = MenuSet(MS_LOAD, "Load patch");
+    MenuSet msSave = MenuSet(MS_SAVE, "Save patch");
+    MenuSet msSaveConfirm = MenuSet(MS_SAVE_CONFIRM, "Confirm save?");
+    MenuSet msAttachCables = MenuSet(MS_ATTACH_CABLES, "Recreate patch?");
+    MenuSet msCableInfo = MenuSet(MS_CABLE_INFO, "Attach cable");
 };
 
 #endif
