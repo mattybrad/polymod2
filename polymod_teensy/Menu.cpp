@@ -13,6 +13,7 @@ Menu::Menu() {
     msSave.addItem(patchString);
   }
   msCableInfo.addItem("...");
+  msWrongModules.addItem("Connect anyway?");
   currentSet = &msHome;
 }
 
@@ -38,8 +39,14 @@ void Menu::confirm() {
     if(currentSet->listIndex == 0) currentSet = &msLoad; 
     else if(currentSet->listIndex == 1) currentSet = &msSave;
   } else if(id == MS_LOAD) {
-    // load patch
-    currentSet = &msAttachCables;
+    // attempt to load patch - check whether all modules are present
+    if(true) { // temp
+      // all modules present
+      currentSet = &msAttachCables;
+    } else {
+      // some modules missing
+      currentSet = &msWrongModules;
+    }
   } else if(id == MS_SAVE) {
     // save patch (check if slot is free)
     if(currentSet->listIndex < 2) currentSet = &msSaveConfirm;

@@ -9,7 +9,8 @@
 #include <Bounce2.h>
 
 // include menu, base module, master module and patch cable classes
-#include "Module.h"
+#include "VirtualModule.h"
+#include "PhysicalModule.h"
 #include "Master.h"
 #include "PatchCable.h"
 #include "Menu.h"
@@ -18,9 +19,9 @@
 // AUTO GENERATED INCLUDE STATEMENTS GOES HERE
 
 // define constants
-#define MAX_MODULES 8 // maybe go up to 16+ later
+#define MAX_MODULES 64
 #define MAX_POLYPHONY 4
-#define MAX_CABLES 32 // should be >= 8 * MAX_POLYPHONY * MAX_MODULES / 2 to avoid problems
+#define MAX_CABLES 200
 
 // define pins
 #define DEC_BUTTON_PIN 0
@@ -29,15 +30,13 @@
 #define NO_BUTTON_PIN 3
 
 // more definitions
-Module *modules[MAX_MODULES][MAX_POLYPHONY]; // all currently used modules
+byte moduleIDReadings[MAX_MODULES];
+byte userModuleIDs[1024][2];
+PhysicalModule *physicalModules[MAX_MODULES]; // all physical modules
+VirtualModule *virtualModules[MAX_MODULES][MAX_POLYPHONY]; // all virtual modules
 PatchCable *patchCables[MAX_CABLES]; // all currently connected patch cables
 AudioControlSGTL5000 sgtl; // teensy audio board chip
 AudioOutputI2S mainOutput; // teensy audio board output
-AudioMixer4 mainMixer; // mix polyphonic channels into single output (only works if polyphony <= 4)
-AudioConnection con1(mainMixer,0,mainOutput,0); // connect main mixer to output (left)
-AudioConnection con2(mainMixer,0,mainOutput,1); // connect main mixer to output (right)
-AudioConnection* masterConnections[MAX_POLYPHONY]; // connections from polyphonic channels to output mixer
-Master masterModules[MAX_POLYPHONY]; // array of master modules
 Menu menu = Menu();
 
 // buttons
@@ -56,29 +55,35 @@ void setup() {
   decButton.interval(25);
   yesButton.interval(25);
   noButton.interval(25);
+
+  // some test user module IDs
+  userModuleIDs[0][0] = 3; // if DIP switch reads 0, initialise module as design #3, virtual module #7
+  userModuleIDs[0][1] = 7;
 }
 
 int a,b,c,d,e,f; // loop index variables
 void loop() {
 
   for(a=0;a<8;a++) {
-    // if more than one module group...
     // set multiplexer to route connection test voltage to group A
 
     for(b=0;b<8;b++) {
+      // if more than one module group...
+      // send A/B address byte to shift register (via SPI for speed)
+      
       // set multiplexer to route connection test voltage to group A, module B
       
       for(c=0;c<8;c++) {
         // set multiplexeter to route connection test voltage to group A, module B, socket C
   
         for(d=0;d<8;d++) {
-            // if more than one module group...
-            // set multiplexer to route ID number data from group D
-            // set multiplexer to route connection readings from group D
-            // set multiplexer to route analog readings from group D
-            // set multiplexer to route shift register latch to group D (for shift out, not shift in)
-            // set multiplexer to route auxiliary data from group D (either from shift register or multiplexer)
-        
+          // if more than one module group...
+          // set multiplexer to route ID number data from group D
+          // set multiplexer to route connection readings from group D
+          // set multiplexer to route analog readings from group D
+          // set multiplexer to route shift register latch to group D (for shift out, not shift in)
+          // set multiplexer to route auxiliary data from group D (either from shift register or multiplexer)
+      
           for(e=0;e<8;e++) {
             // set multiplexer to route ID number data from group D, module E
             // set multiplexer to route connection readings from group D, module E
@@ -96,6 +101,7 @@ void loop() {
               // set multiplexer(s) to route analog reading from group D, module E, channel F, including auxiliary multiplexer if used
 
               // read ID number data (group D, module E, bit F)
+              // something like bitWrite(moduleIDReadings[d*8+e], f, digitalRead(MODULE_ID_PIN));
     
               // read whether module A, socket B, is connected to group D, module E, socket F
     
@@ -111,6 +117,8 @@ void loop() {
       }
     }
   }
+
+  updatePhysicalModuleList();
 
   // menu button update code, here for now but will move inside loop at some point
   incButton.update();
@@ -128,4 +136,17 @@ void loop() {
   }
 }
 
+void updatePhysicalModuleList() {
+  for(int i=0; i<MAX_MODULES; i++) {
+    if(moduleIDReadings[i] != physicalModules[i]->id) {
+      // update physical module instance
+      physicalModules[i]->id = moduleIDReadings[i];
 
+      // kill previous virtual modules
+
+      // check user module mappings
+
+      // initialise new virtual modules
+    }
+  }
+}

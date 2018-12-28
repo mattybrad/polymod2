@@ -8,7 +8,8 @@
 #define MS_SAVE 2
 #define MS_SAVE_CONFIRM 3
 #define MS_ATTACH_CABLES 4
-#define MS_CABLE_INFO 5
+#define MS_WRONG_MODULES 5
+#define MS_CABLE_INFO 6
 
 class Menu {
   public:
@@ -27,6 +28,7 @@ class Menu {
     MenuSet msSave = MenuSet(MS_SAVE, "Save patch");
     MenuSet msSaveConfirm = MenuSet(MS_SAVE_CONFIRM, "Confirm save?");
     MenuSet msAttachCables = MenuSet(MS_ATTACH_CABLES, "Recreate patch?");
+    MenuSet msWrongModules = MenuSet(MS_WRONG_MODULES, "Modules missing");
     MenuSet msCableInfo = MenuSet(MS_CABLE_INFO, "Attach cable");
 };
 
