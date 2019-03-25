@@ -1,0 +1,60 @@
+Okay, some new thoughts on what the Teensy pins will do. This is a complicated question for a few reasons!
+1) Moving from 8 modules to 64 modules requires a bunch more pins
+2) Giving the modules more features (especially LED shift registers) requires more pins
+3) Giving the synth itself more features (MIDI, OLED display) requires more pins
+4) The audio board uses up loads of pins
+5) Currently using a Teensy 3.6, which has 40 accessible pins, but likely to move to Teensy 4.0 at some point, which has maybe 24 accessible pins
+
+Ideally I want to get down to 24 pins, to make things future-proof, so let's start from there.
+
+Things that probably can't be multiplexed (7 pins):
+MIDI in
+Module ID data
+Patch cable data
+Analogue sensor data
+Auxiliary data
+CV in
+CV out (but maybe no DAC on T4)
+
+Things that can probably be shift-registered:
+Address A (3 pins)
+Address B (3 pins)
+Address C (3 pins)
+Address D (3 pins)
+
+Things that can maybe be shift-registered:
+Address E (3 pins)
+Address F (3 pins)
+
+Shift register pins needed (unclear, maybe 5 pins?):
+Clock (shared)
+Latch (module LEDs etc)
+Latch (addressing, maybe shareable...?)
+Module LED data
+Addressing data
+
+Audio board pins (12 pins):
+Audio (7 pins, 2 shareable with other I2C)
+SD and memory (5 pins)
+
+OLED can hopefully share pins with audio board (I2C)
+
+If I haven't forgotten anything, that gives us the following possibilities:
+
+If all the address pins get shifted and OLED is shareable: 24 pins (dead on)
+
+The issue with this is that shifting the addressing might not be fast enough, which would leave a few options:
+1) Abandon support for Teensy 4, stick with Teensy 3.6 (and deal with the fact that it won't be able to power loads of modules)
+2) Free up pins for at least channel F by ditching certain features, perhaps aux channel or CV in/out (additional note: the MCP4921 DAC runs on SPI, which could potentially share with the audio board)
+3) Move the less cerebral features to an Arduino, perhaps something like the following:
+
+Rough guess Arduino pins:
+0-1: serial comms
+2-6: shift registers for addressing A, B, C, D, and module LEDs
+7-12: direct addressing of E, F
+13: module ID
+A0-A5: analog sensors, aux, anything else
+
+That would actually work pretty nicely and free up both pins and runtime on the Teensy. Tempting!
+
+This Arduino solution would also play nicely with the idea of multiple Teensys for more processing power, although the Teensy 4 may make this pointless anyway. Yes, actually, let's put that idea to bed now, this project is complicated enough as it is!

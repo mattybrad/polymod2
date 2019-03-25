@@ -1,7 +1,7 @@
 Pin numbers, based on a Teensy 3.6, maximum 64 modules
 
 0	MIDI input
-1	MIDI output (i.e. must be used for serial...? test this)
+1	
 2	LCD shift register (plus address A/B and error LED)
 3	LCD shift register
 4	LCD shift register
@@ -15,7 +15,7 @@ Pin numbers, based on a Teensy 3.6, maximum 64 modules
 12	reserved for audio board
 13	reserved for audio board
 14	reserved for audio board
-15	reserved for audio board
+15	reserved for audio board (probably fine?)
 16	module analog data in
 17	input shift register clock (maybe combine with LCD shift reg?)
 18	reserved for audio board
@@ -24,12 +24,12 @@ Pin numbers, based on a Teensy 3.6, maximum 64 modules
 21	input shift register data in
 22	reserved for audio board
 23	reserved for audio board
-24  address C0
-25  address C1
-26  address C2
-27  address D0
-28  address D1
-29  address D2
+24  	address C0
+25  	address C1
+26  	address C2
+27  	address D0
+28  	address D1
+29  	address D2
 30	address E0
 31	address E1
 32	address E2

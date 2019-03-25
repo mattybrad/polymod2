@@ -16,9 +16,9 @@ Pin numbers, based on a Teensy 4.0, maximum 64 modules
 12	reserved for audio board
 13	reserved for audio board
 14	reserved for audio board
-15	reserved for audio board
+15	
 16	module analog data in
-17  socket data
+17  	socket data
 18	reserved for audio board
 19	reserved for audio board
 20	module shift register data (out)
