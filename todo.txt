@@ -1,0 +1,9 @@
+- build test circuit with arduino reading from different modules in different groups and exchanging data with teensy. will require perhaps 10 4051s (ugh), send/rcv for root, group 1, group 2, module 1 and module 2. if concept seems to work, focus on improving speed, see whether 64 modules is viable. run intense audio sketch on teensy during comms.
+
+- add MIDI input to test setup
+
+- buy and test an OLED screen, incorporate into test setup, including menu buttons
+
+- add CV in and out circuitry, test with eurorack setup
+
+- if everything seems good, design the PCB - this project is probably out of the scope of breadboard..? polymod v0 was breadboard, that had 8 modules, each with 3 4051s, plus 2(?) root 4051s, total of 26ish. a working prototype of polymod v2 might need... 6 root 4051s, 12 group 4051s (for 2 groups), 6 or 12 4051s for the master module, 6 4051s for a test module, total of up to 36! could maybe get rid of aux chips, down to 30, then also make second group just a send/rcv group, down to 27... basically it's do-able but pretty hardcore.
