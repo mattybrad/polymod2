@@ -1,2 +1,22 @@
 26/3/2019 - tried serial communication between arduino and teensy. used a voltage divider to step 5V arduino output down to 2.5V (10k resistor either side of divider), which worked fine with teensy. at 9600(whatever that unit is), was able to send 300 messages per second from arduino and receive them all fine on teensy. at 115200 was able to send >6000 messages per second, which is hopefully plenty. the messages were ~5 bytes each so basically sending/receiving at the proper rate, i.e. can send 115200 bits per second. oh, apparently you can actually go way higher than this, so that's good, because sending 64 lots of 8 10-bit analog values would eat up a lot of data - you could only do it 22 times per second (although maybe that's just about acceptable?). anyway, ought to think of a clever way to compress the data and not send unused channels, but hopefully can just crank the baud rate to something huge regardless.
 can also happily send data the other way, just did a direct link between the two, 3.3V output into 5V input worked fine.
+
+8/4/2019 - back from holiday! built a test circuit with an arduino, simulating two modules in separate module groups. the concept of module groups works fine, and i'm now into the problem of speed. with 2 module groups (16 modules total) reading connections and analog data, the entire loop is done in around 2.5 seconds, although the "important" time to note is for the inner loop to process - this takes under 20ms. this is already almost acceptable. however, increasing the number of module groups has a huge impact on speed. 8 full module groups (64 modules) take ~40 seconds(!) to process, with an unacceptable (but not quite as horrendous) 100ms or so for the inner loop. all of this is without any optimisations, however. port manipulation could give a drastic improvement. something weird is happening with pin numbers, but it's late and i'll figure it out another time.
+
+9/4/2019 - okay, the weird problem was a combination of wiring multiplexers up in the wrong order and then getting the channel numbers the wrong way round in the code - all good now though. to confirm, "naive" time benchmark (i.e. with no port manipulation, and checking everything regardless of whether a module is present and has 8 knobs) for max 16 modules is about 2.5 seconds for checking connections and 18ms for checking knobs, although i haven't yet simulated module ID checking (okay to be slow) or shift reg sending for LEDs etc (needs to be pretty fast really). should be fine, though.
+haven't yet tested serial communication of connection info to the teensy, but should be trivial.
+
+okay, new info - turns out that the analogRead call was taking up most of the time. can now read all connections in 450ms, all live data in 4ms. most modules won't use all 8 analogRead calls so that's not a huge problem, but worth investigating speedier analogRead methods. apparently there's something called "ADC free running mode"...
+
+meanwhile, it's worth noting that 32 modules can now be read (sans analog) in 1800ms/7ms, 48 modules in 4100ms/11ms, and 64 modules in 7200ms/14ms. basically, we can seemingly crank up the number of modules pretty high and the only thing that suffers hugely is connection testing speed.
+
+okay, after some further testing and optimisation using port manipulation, 64 modules can now by read (without analog) in 2000ms/3ms, which is really really good. naively adding the analogRead line back in bumps it up from 2 seconds to 30 seconds, so that's definitely the next priority. could also almost double the current speed (without analog) by using port manipulation on the shift registers, but this is a bit more complex maybe.
+
+right, here are all the things i've done to get the speed as high as possible:
+- increased the serial baud rate
+- moved some variable declarations from global to local
+- replaced multiplication with bitwise operators
+- used port manipulation for the most-switched channels (E and F)
+- controlled shift registers via SPI
+- probably some other stuff i've forgotten
+and the end result is a frankly spectacular 1000ms/1ms for 64 modules! still without analog, but that's a job for another day.

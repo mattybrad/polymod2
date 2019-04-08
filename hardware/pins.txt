@@ -1,18 +1,18 @@
 Arduino pins:
 0	read serial from teensy
 1	write serial to teensy
-2	write address (A to D) shift register clock
-3	write address (A to D) shift register latch
-4	write address shift register data
-5	write module shift register clock (if not shared)
-6	write module shift register latch (if not shared)
-7	write module shift register data
-8	write address E0
-9	write address E1
-10	write address E2
-11	write address F0
-12	write address F1
-13	write address F2
+2	write address E0
+3	write address E1
+4	write address E2
+5	write address F0
+6	write address F1
+7	write address F2
+8	write address (A to D) shift register clock
+9	write address (A to D) shift register latch
+10	SS to shift register RCLK
+11	MOSI to shift register data in
+12	
+13	SCK to shift register SCLK
 A0	read module ID
 A1	read analog sensors
 A2	read patch connections
