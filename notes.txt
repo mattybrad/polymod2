@@ -20,3 +20,5 @@ right, here are all the things i've done to get the speed as high as possible:
 - controlled shift registers via SPI
 - probably some other stuff i've forgotten
 and the end result is a frankly spectacular 1000ms/1ms for 64 modules! still without analog, but that's a job for another day.
+
+9/4/19 - big success! tried out a version of the ADC free-running method and it works. 64-module time with analog is now ~2s for a full reading and ~60ms for a full loop. timings are now a bit more vague because ADC free-running mode means that some values don't get read for a few cycles, but i added a fallback to make the sketch wait if a value hasn't been checked for N cycles.
