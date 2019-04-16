@@ -7,12 +7,12 @@ Arduino pins:
 5	write address F0
 6	write address F1
 7	write address F2
-8	write address (A to D) shift register clock
-9	write address (A to D) shift register latch
-10	SS to shift register RCLK
-11	MOSI to shift register data in
+8	
+9	chip select for address (A to D) shift register
+10	chip select for module data (LEDs etc) shift register
+11	MOSI to shift registers data in
 12	
-13	SCK to shift register SCLK
+13	SCK to shift registers SCLK
 A0	read module ID
 A1	read analog sensors
 A2	read patch connections

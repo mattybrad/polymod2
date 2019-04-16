@@ -1,0 +1,41 @@
+MODULE PINS:
+1	address C0 (connection test send pin, module ID pin)
+2	address C1
+3	address C2
+4	address F0 (connection test receive pin, analog pin)
+5	address F1
+6	address F2
+7	module ID data
+8	analog data
+9	connection test send signal
+10	connection test receive signal
+11	SPI data (to module LEDs etc)
+12	SPI clock
+13	SPI select
+14	power
+15	ground
+16	aux? spare?
+
+MODULE GROUP PINS:
+1	address B0
+2	address B1
+3	address B2
+4	address C0
+5	address C1
+6	address C2
+7	address C3
+8	address E0
+9	address E1
+10	address E2
+11	address F0
+12	address F1
+13	address F2
+14	module ID data
+15	analog data
+16	connection test send signal
+17	connection test receive signal
+18	SPI data
+19	SPI clock
+20	power
+21	ground
+22	aux? spare?
