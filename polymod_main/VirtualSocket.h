@@ -1,11 +1,11 @@
-#ifndef Socket_h
-#define Socket_h
+#ifndef VirtualSocket_h
+#define VirtualSocket_h
 #include "Arduino.h"
 #include <AudioStream.h>
 
-class Socket {
+class VirtualSocket {
   public:
-    Socket();
+    VirtualSocket();
     void setOutput(AudioStream& stream, int connectionIndex);
     void setInput(AudioStream& stream, int connectionIndex);
     boolean isOutput();

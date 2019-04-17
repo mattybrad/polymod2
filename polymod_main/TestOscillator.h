@@ -7,7 +7,6 @@
 class TestOscillator : public VirtualModule {
   public:
     TestOscillator();
-    virtual void update();
   private:
     AudioSynthWaveformModulated _square;
 };

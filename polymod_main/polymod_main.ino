@@ -12,7 +12,7 @@
 #include "VirtualModule.h"
 #include "PhysicalModule.h"
 #include "Master.h"
-#include "PatchCable.h"
+#include "PhysicalPatchCable.h"
 #include "Menu.h"
 #include "TestOscillator.h"
 
@@ -22,6 +22,7 @@
 // define constants
 #define MAX_MODULES 64
 #define MAX_POLYPHONY 4
+#define MAX_SOCKETS 512
 #define MAX_CABLES 200
 
 // define pins
@@ -32,9 +33,10 @@
 
 // more definitions
 byte moduleIDReadings[MAX_MODULES];
+PhysicalPatchCable patchCableConnections[MAX_CABLES];
+PhysicalPatchCable newPatchCableConnections[MAX_CABLES];
+int newConnectionIndex = 0;
 PhysicalModule physicalModules[MAX_MODULES]; // all physical modules
-VirtualModule *virtualModules[MAX_MODULES][MAX_POLYPHONY]; // all virtual modules
-PatchCable *patchCables[MAX_CABLES]; // all currently connected patch cables
 AudioControlSGTL5000 sgtl; // teensy audio board chip
 AudioOutputI2S mainOutput; // teensy audio board output
 Menu menu = Menu();
@@ -73,7 +75,9 @@ void setup() {
   sgtl.volume(0.5);
   sine1.amplitude(0.5);
 
-  //Physical
+  // init test modules
+  physicalModules[0].virtualModule = new Master();
+  physicalModules[1].virtualModule = new TestOscillator();
 }
 
 int a,b,c,d,e,f; // loop index variables
@@ -86,7 +90,9 @@ void loop() {
       // new command!
       currentCommand[0] = thisByte;
       if(thisByte>0) nextPosition ++; // don't increment position for command 0 because it doesn't have any other data expected
-      //else Serial.println("LOOP STARTED");
+      else {
+        updatePatchCableConnections();
+      }
     } else {
       currentCommand[nextPosition] = thisByte;
       switch(currentCommand[0]) {
@@ -94,6 +100,7 @@ void loop() {
         nextPosition++;
         if(nextPosition>6) {
           nextPosition=0;
+          addNewPatchCableConnection((currentCommand[1]<<6)+(currentCommand[2]<<3)+currentCommand[3],(currentCommand[4]<<6)+(currentCommand[5]<<3)+currentCommand[6]);
           /*Serial.print("PATCH CONNECTION: ");
           Serial.print(currentCommand[1]);
           Serial.print("-");
@@ -160,7 +167,56 @@ void updatePhysicalModuleList() {
       // check user module mappings
 
       // initialise new virtual modules
-      if(physicalModules[i].id==136) virtualModules[i][0] = new TestOscillator();
+      //if(physicalModules[i].id==136) physicalModules[i].virtualModule = new TestOscillator();
     }
   }
 }
+
+void addNewPatchCableConnection(int socket1, int socket2) {
+  newPatchCableConnections[newConnectionIndex].inUse = true;
+  newPatchCableConnections[newConnectionIndex].socket1 = socket1;
+  newPatchCableConnections[newConnectionIndex].socket2 = socket2;
+  newConnectionIndex ++;
+}
+
+void updatePatchCableConnections() {
+  for(int i=0;i<MAX_CABLES;i++) {
+    boolean cableFound = false;
+    for(int j=0;j<newConnectionIndex&&!cableFound;j++) {
+      if(patchCableConnections[i].inUse) {
+        if(patchCableConnections[i].socket1==newPatchCableConnections[j].socket1&&patchCableConnections[i].socket2==newPatchCableConnections[j].socket2) {
+          newPatchCableConnections[j].inUse = false;
+          cableFound = true;
+        }
+      }
+    }
+    if(!cableFound&&patchCableConnections[i].inUse) {
+      // patch cable removed
+      patchCableConnections[i].inUse = false;
+      Serial.print("REMOVED ");
+      Serial.print(patchCableConnections[i].socket1);
+      Serial.print("->");
+      Serial.println(patchCableConnections[i].socket2);
+    }
+  }
+  for(int i=0;i<newConnectionIndex;i++) {
+    if(newPatchCableConnections[i].inUse) {
+      // patch cable added, find space in list
+      boolean spaceFound = false;
+      for(int j=0;j<MAX_CABLES&&!spaceFound;j++) {
+        if(!patchCableConnections[j].inUse) {
+          patchCableConnections[j].inUse = true;
+          patchCableConnections[j].socket1 = newPatchCableConnections[i].socket1;
+          patchCableConnections[j].socket2 = newPatchCableConnections[i].socket2;
+          spaceFound = true;
+          Serial.print("ADDED ");
+          Serial.print(patchCableConnections[j].socket1);
+          Serial.print("->");
+          Serial.println(patchCableConnections[j].socket2);
+        }
+      }
+    }
+  }
+  newConnectionIndex = 0;
+}
+
