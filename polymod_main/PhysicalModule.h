@@ -5,7 +5,7 @@
 class PhysicalModule {
   public:
     PhysicalModule();
-    byte id;
+    byte id = 0;
   private:
     
 };

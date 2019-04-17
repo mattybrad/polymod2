@@ -14,6 +14,7 @@
 #include "Master.h"
 #include "PatchCable.h"
 #include "Menu.h"
+#include "TestOscillator.h"
 
 // include specific modules - this part can be generated automatically
 // AUTO GENERATED INCLUDE STATEMENTS GOES HERE
@@ -31,7 +32,7 @@
 
 // more definitions
 byte moduleIDReadings[MAX_MODULES];
-PhysicalModule *physicalModules[MAX_MODULES]; // all physical modules
+PhysicalModule physicalModules[MAX_MODULES]; // all physical modules
 VirtualModule *virtualModules[MAX_MODULES][MAX_POLYPHONY]; // all virtual modules
 PatchCable *patchCables[MAX_CABLES]; // all currently connected patch cables
 AudioControlSGTL5000 sgtl; // teensy audio board chip
@@ -71,6 +72,8 @@ void setup() {
   sgtl.enable();
   sgtl.volume(0.5);
   sine1.amplitude(0.5);
+
+  //Physical
 }
 
 int a,b,c,d,e,f; // loop index variables
@@ -83,7 +86,7 @@ void loop() {
       // new command!
       currentCommand[0] = thisByte;
       if(thisByte>0) nextPosition ++; // don't increment position for command 0 because it doesn't have any other data expected
-      else Serial.println("LOOP STARTED");
+      //else Serial.println("LOOP STARTED");
     } else {
       currentCommand[nextPosition] = thisByte;
       switch(currentCommand[0]) {
@@ -91,7 +94,7 @@ void loop() {
         nextPosition++;
         if(nextPosition>6) {
           nextPosition=0;
-          Serial.print("PATCH CONNECTION: ");
+          /*Serial.print("PATCH CONNECTION: ");
           Serial.print(currentCommand[1]);
           Serial.print("-");
           Serial.print(currentCommand[2]);
@@ -102,36 +105,26 @@ void loop() {
           Serial.print("-");
           Serial.print(currentCommand[5]);
           Serial.print("-");
-          Serial.println(currentCommand[6]);
+          Serial.println(currentCommand[6]);*/
         }
         break;
 
         case 2:
+        // analog reading
         nextPosition++;
         if(nextPosition>4) {
           nextPosition=0;
           tempFreq = 100.0 + 10*currentCommand[4];
-          /*Serial.print("ANALOG READING: ");
-          Serial.print(currentCommand[1]);
-          Serial.print("-");
-          Serial.print(currentCommand[2]);
-          Serial.print("-");
-          Serial.print(currentCommand[3]);
-          Serial.print(": ");
-          Serial.println(currentCommand[4]);*/
+          
         }
         break;
 
         case 3:
+        // module ID reading
         nextPosition++;
         if(nextPosition>3) {
           nextPosition=0;
-          Serial.print("MODULE ID: ");
-          Serial.print(currentCommand[1]);
-          Serial.print("-");
-          Serial.print(currentCommand[2]);
-          Serial.print(": ");
-          Serial.println(currentCommand[3]);
+          moduleIDReadings[(currentCommand[1]<<3)+currentCommand[2]] = currentCommand[3];
         }
         break;
       }
@@ -158,15 +151,16 @@ void loop() {
 
 void updatePhysicalModuleList() {
   for(int i=0; i<MAX_MODULES; i++) {
-    if(moduleIDReadings[i] != physicalModules[i]->id) {
+    if(moduleIDReadings[i] != physicalModules[i].id) {
       // update physical module instance
-      physicalModules[i]->id = moduleIDReadings[i];
+      physicalModules[i].id = moduleIDReadings[i];
 
       // kill previous virtual modules
 
       // check user module mappings
 
       // initialise new virtual modules
+      if(physicalModules[i].id==136) virtualModules[i][0] = new TestOscillator();
     }
   }
 }
