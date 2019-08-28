@@ -74,6 +74,8 @@ void setup() {
   sine1.amplitude(0.5);
 
   //Physical
+
+  Serial.println("STARTED SKETCH");
 }
 
 int a,b,c,d,e,f; // loop index variables
@@ -94,7 +96,7 @@ void loop() {
         nextPosition++;
         if(nextPosition>6) {
           nextPosition=0;
-          /*Serial.print("PATCH CONNECTION: ");
+          Serial.print("PATCH CONNECTION: ");
           Serial.print(currentCommand[1]);
           Serial.print("-");
           Serial.print(currentCommand[2]);
@@ -105,7 +107,7 @@ void loop() {
           Serial.print("-");
           Serial.print(currentCommand[5]);
           Serial.print("-");
-          Serial.println(currentCommand[6]);*/
+          Serial.println(currentCommand[6]);
         }
         break;
 

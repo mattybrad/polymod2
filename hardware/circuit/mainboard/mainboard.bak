@@ -1,0 +1,71 @@
+EESchema Schematic File Version 4
+EELAYER 26 0
+EELAYER END
+$Descr A3 16535 11693
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L teensy:Teensy4.0 U?
+U 1 1 5D64296B
+P 5500 3550
+F 0 "U?" H 5500 5165 50  0000 C CNN
+F 1 "Teensy4.0" H 5500 5074 50  0000 C CNN
+F 2 "" H 5100 3750 50  0001 C CNN
+F 3 "" H 5100 3750 50  0001 C CNN
+	1    5500 3550
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4xxx:4051 U?
+U 1 1 5D642A55
+P 1800 1600
+F 0 "U?" H 2341 1646 50  0000 L CNN
+F 1 "4051" H 2341 1555 50  0000 L CNN
+F 2 "" H 1800 1600 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/Intersil/documents/cd40/cd4051bms-52bms-53bms.pdf" H 1800 1600 50  0001 C CNN
+	1    1800 1600
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4xxx:4051 U?
+U 1 1 5D642ABD
+P 1800 3850
+F 0 "U?" H 2341 3896 50  0000 L CNN
+F 1 "4051" H 2341 3805 50  0000 L CNN
+F 2 "" H 1800 3850 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/Intersil/documents/cd40/cd4051bms-52bms-53bms.pdf" H 1800 3850 50  0001 C CNN
+	1    1800 3850
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4xxx:4051 U?
+U 1 1 5D642B13
+P 3350 1600
+F 0 "U?" H 3891 1646 50  0000 L CNN
+F 1 "4051" H 3891 1555 50  0000 L CNN
+F 2 "" H 3350 1600 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/Intersil/documents/cd40/cd4051bms-52bms-53bms.pdf" H 3350 1600 50  0001 C CNN
+	1    3350 1600
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4xxx:4051 U?
+U 1 1 5D642BC5
+P 3350 3850
+F 0 "U?" H 3891 3896 50  0000 L CNN
+F 1 "4051" H 3891 3805 50  0000 L CNN
+F 2 "" H 3350 3850 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/Intersil/documents/cd40/cd4051bms-52bms-53bms.pdf" H 3350 3850 50  0001 C CNN
+	1    3350 3850
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC

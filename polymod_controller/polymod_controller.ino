@@ -85,7 +85,7 @@ void setup() {
 unsigned long lastStart = 0;
 unsigned long innerStart = 0;
 unsigned long innerEnd = 0;
-int numGroups = 8;
+int numGroups = 2;
 byte cyclesSinceRead[8*8*8];
 bool firstLoop = true;
 
@@ -205,7 +205,7 @@ void loop() {
                   doDelay = !updateAnalogReading(d,e,f,analogVal>>2);
                 }
               }
-              if(doDelay) delayMicroseconds(6);
+              if(doDelay) delayMicroseconds(10);
 
               if(socket1 < socket2) {
                 if(!bitRead(PINC,2)) {
