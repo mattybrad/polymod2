@@ -1,0 +1,18 @@
+Here's how the system will work, as of Aug 28th 2019:
+
+PolyMod 2 will be a synthesizer system that can physically fit in a Eurorack case, be powered by a Eurorack power supply, and have some limited connectivity with Eurorack modules (maybe two audio ins/outs and two CV ins/outs), but for the most part it is electrically incompatible and separate from the Eurorack system.
+
+PM2 will consist of a master module, with various other modules connected to it. The master module will have ports to connect up to 14 modules - more can be added with expander modules.
+
+The modules in the PM2 system will be patchable like Eurorack modules, but will use breadboard jumper wires. The patching is done physically and sends a digital signal to the master module, which updates an onboard soft synth with the patching data.
+
+The master module contains a Teensy 4.0 for audio processing and a Teensy LC to handle the physical interface (patching, knobs, LEDs, etc).
+
+The Teensy LC (currently using an Arduino but will upgrade soon) scans every patch point on every module. There are 8 groups of modules, each containing up to 8 modules, giving a total of 64 (although 2 modules are used up by the master module). It also reads all the knobs and buttons, and writes to any LEDs.
+
+The Teensy LC communicates with the Teensy 4.0 via serial. Possible messages are as follows:
+
+END LOOP (command 0) - signifies the end of one cycle of updates, no other data needed.
+PATCH CONNECTION (command 1) - signifies that a patch cable is connected. Contains 6 bytes of data: the group number, module number, and socket number for both ends of the patch cable.
+ANALOG READING (command 2)
+MODULE ID READING (command 3)

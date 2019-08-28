@@ -73,12 +73,9 @@ void setup() {
   sgtl.volume(0.5);
   sine1.amplitude(0.5);
 
-  //Physical
-
   Serial.println("STARTED SKETCH");
 }
 
-int a,b,c,d,e,f; // loop index variables
 void loop() {
   sine1.frequency(tempFreq);
   
@@ -148,7 +145,7 @@ void loop() {
 
   updatePhysicalModuleList();
 
-  // menu button update code, here for now but will move inside loop at some point
+  // menu button update code
   incButton.update();
   decButton.update();
   yesButton.update();
