@@ -13,8 +13,8 @@ Arduino pins:
 11	MOSI to shift registers data in
 12	
 13	SCK to shift registers SCLK
-A0	read module ID
-A1	read analog sensors
+A0	read analog sensors
+A1	read module ID
 A2	read patch connections
 A3	read/write(?) aux channel
 A4	

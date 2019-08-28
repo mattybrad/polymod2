@@ -116,8 +116,15 @@ void loop() {
         nextPosition++;
         if(nextPosition>4) {
           nextPosition=0;
-          tempFreq = 100.0 + 10*currentCommand[4];
-          
+          Serial.print("ANALOG READING: ");
+          Serial.print(currentCommand[1]);
+          Serial.print("-");
+          Serial.print(currentCommand[2]);
+          Serial.print("-");
+          Serial.print(currentCommand[3]);
+          Serial.print(": ");
+          Serial.println(currentCommand[4]);
+          if(currentCommand[1]==0&&currentCommand[2]==0&&currentCommand[3]==0) tempFreq = 100.0 + 10*currentCommand[4];
         }
         break;
 
@@ -127,6 +134,12 @@ void loop() {
         if(nextPosition>3) {
           nextPosition=0;
           moduleIDReadings[(currentCommand[1]<<3)+currentCommand[2]] = currentCommand[3];
+          Serial.print("MODULE ID READING: ");
+          Serial.print(currentCommand[1]);
+          Serial.print("-");
+          Serial.print(currentCommand[2]);
+          Serial.print(": ");
+          Serial.println(currentCommand[3]);
         }
         break;
       }

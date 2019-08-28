@@ -45,7 +45,6 @@ void setup() {
   ADMUX &= B11110000;
   
   // Set MUX3..0 in ADMUX (0x7C) to read from AD8 (Internal temp)
-  // Do not set above 15! You will overrun other parts of ADMUX. A full
   // list of possible inputs is available in Table 24-4 of the ATMega328
   // datasheet
   ADMUX |= 0;
@@ -205,7 +204,7 @@ void loop() {
                   doDelay = !updateAnalogReading(d,e,f,analogVal>>2);
                 }
               }
-              if(doDelay) delayMicroseconds(10);
+              if(doDelay) delayMicroseconds(10); // was 6, but was getting errors
 
               if(socket1 < socket2) {
                 if(!bitRead(PINC,2)) {
