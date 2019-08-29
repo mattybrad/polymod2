@@ -166,16 +166,7 @@ void updatePhysicalModuleList() {
       // update physical module instance
       physicalModules[i].id = moduleIDReadings[i];
 
-      // kill previous virtual modules
       
-
-      // check user module mappings
-
-      // initialise new virtual modules
-      if(physicalModules[i].id==136) {
-        virtualModules[i][0] = new TestOscillator();
-        Serial.println("ADDED TEST OSCILLATOR");
-      }
     }
   }
 }
