@@ -30,7 +30,7 @@ void setup() {
   pinMode(readConnections, INPUT_PULLUP);
   SPI.begin();
 
-  // where did all this ADC stuff come from? credit the author!
+  // code adapted from http://www.glennsweeney.com/tutorials/interrupt-driven-analog-conversion-with-an-atmega328p
 
   // clear ADLAR in ADMUX (0x7C) to right-adjust the result
   // ADCL will contain lower 8 bits, ADCH upper 2 (in last two bits)
@@ -164,7 +164,7 @@ void loop() {
                 // test dummy data, send module ID data
                 Serial.write(3); // ID message
                 Serial.write(0); // group number
-                Serial.write(0); // module number
+                Serial.write(2); // module number
                 Serial.write(136); // module ID
               }
 

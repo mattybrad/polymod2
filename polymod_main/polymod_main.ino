@@ -40,9 +40,9 @@ AudioOutputI2S mainOutput; // teensy audio board output
 Menu menu = Menu();
 
 // test audio board
-AudioSynthWaveformSine   sine1;
-AudioConnection          patchCord1(sine1, 0, mainOutput, 0);
-AudioConnection          patchCord2(sine1, 0, mainOutput, 1);
+//AudioSynthWaveformSine   sine1;
+//AudioConnection          patchCord1(sine1, 0, mainOutput, 0);
+//AudioConnection          patchCord2(sine1, 0, mainOutput, 1);
 
 // buttons
 Bounce incButton = Bounce();
@@ -71,20 +71,21 @@ void setup() {
   AudioMemory(15);
   sgtl.enable();
   sgtl.volume(0.5);
-  sine1.amplitude(0.5);
+  //sine1.amplitude(0.5);
 
   Serial.println("STARTED SKETCH");
 }
 
 void loop() {
-  sine1.frequency(tempFreq);
+  //sine1.frequency(tempFreq);
   
   while(Serial1.available()) {
     byte thisByte = Serial1.read();
     if(nextPosition==0) {
       // new command!
       currentCommand[0] = thisByte;
-      if(thisByte>0) nextPosition ++; // don't increment position for command 0 because it doesn't have any other data expected
+      if(thisByte==0) updatePhysicalModuleList();
+      else if(thisByte>0) nextPosition ++; // don't increment position for command 0 because it doesn't have any other data expected
       //else Serial.println("LOOP STARTED");
     } else {
       currentCommand[nextPosition] = thisByte;
@@ -109,7 +110,7 @@ void loop() {
         break;
 
         case 2:
-        // analog reading
+        // analog reading (currently 8-bit, upgrade to 10-bit at some point)
         nextPosition++;
         if(nextPosition>4) {
           nextPosition=0;
@@ -143,8 +144,6 @@ void loop() {
     }
   }
 
-  updatePhysicalModuleList();
-
   // menu button update code
   incButton.update();
   decButton.update();
@@ -168,11 +167,15 @@ void updatePhysicalModuleList() {
       physicalModules[i].id = moduleIDReadings[i];
 
       // kill previous virtual modules
+      
 
       // check user module mappings
 
       // initialise new virtual modules
-      if(physicalModules[i].id==136) virtualModules[i][0] = new TestOscillator();
+      if(physicalModules[i].id==136) {
+        virtualModules[i][0] = new TestOscillator();
+        Serial.println("ADDED TEST OSCILLATOR");
+      }
     }
   }
 }
