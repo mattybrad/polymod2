@@ -5,9 +5,10 @@
 class PhysicalModule {
   public:
     PhysicalModule();
-    byte id = 0;
+    void updateID(int newID);
   private:
-    
+    byte _id = 0;
+        
 };
 
 #endif
