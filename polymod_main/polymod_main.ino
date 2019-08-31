@@ -82,7 +82,7 @@ void setup() {
 
 void loop() {
   //sine1.frequency(tempFreq);
-  
+
   while(Serial1.available()) {
     byte thisByte = Serial1.read();
     if(nextPosition==0) {
