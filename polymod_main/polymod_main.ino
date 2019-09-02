@@ -37,14 +37,6 @@ AudioControlSGTL5000 sgtl; // teensy audio board chip
 AudioOutputI2S mainOutput; // teensy audio board output
 AudioConnection *mainConnections[4];
 AudioMixer4 mainMixer; // temporary - will need a more flexible mixer for more than 4 channels
-AudioSynthWaveform testWave1;
-AudioSynthWaveform testWave2;
-AudioSynthWaveform testWave3;
-AudioSynthWaveform testWave4;
-//AudioConnection testWaveConnection1(testWave1,0,mainMixer,0);
-//AudioConnection testWaveConnection2(testWave2,0,mainMixer,1);
-//AudioConnection testWaveConnection3(testWave3,0,mainMixer,2);
-//AudioConnection testWaveConnection4(testWave4,0,mainMixer,3);
 AudioConnection mixerToOutput1(mainMixer,0,mainOutput,0);
 AudioConnection mixerToOutput2(mainMixer,0,mainOutput,1);
 Menu menu = Menu();
@@ -87,10 +79,6 @@ void setup() {
   mainMixer.gain(1,0.1);
   mainMixer.gain(2,0.1);
   mainMixer.gain(3,0.1);
-  testWave1.begin(0.3,100,WAVEFORM_SINE);
-  testWave2.begin(0.3,250,WAVEFORM_SINE);
-  testWave3.begin(0.3,300,WAVEFORM_SINE);
-  testWave4.begin(0.3,400,WAVEFORM_SINE);
 
   for(int i=0; i<MAX_CABLES; i++) {
     physicalPatchCables[i] = NULL;
