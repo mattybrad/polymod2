@@ -1,7 +1,6 @@
 #include "Arduino.h"
 #include "PhysicalModule.h"
 #include "VCO.h"
-//#include "modules/VCF.h"
 
 PhysicalModule::PhysicalModule() {
 
@@ -27,14 +26,10 @@ void PhysicalModule::updateID(int newID) {
     } else {
       // new module added - create appropriate virtual module
       switch(newID) {
-        case 1:
+        case 136:
         virtualModule = new VCO();
+        Serial.println("HELLO");
         break;
-        /*case 2:
-        virtualModule = new VCF();
-        break;
-        default:
-        virtualModule = new VCO();*/
       }
     }
   }
