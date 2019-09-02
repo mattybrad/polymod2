@@ -14,9 +14,9 @@ class PhysicalModule {
     PhysicalSocket physicalSockets[8];
     PhysicalControl physicalControls[8];
     void updateID(int newID);
+    VirtualModule *virtualModule;
   private:
     byte _id = 0;
-    VirtualModule *virtualModule;
 
 };
 

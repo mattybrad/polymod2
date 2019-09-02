@@ -1,3 +1,0 @@
-#define INPUT_SOCKET 0
-#define OUTPUT_SOCKET 1
-#define INACTIVE_SOCKET 2

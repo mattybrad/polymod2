@@ -7,6 +7,7 @@ class AudioStreamSet {
   public:
     AudioStreamSet();
     AudioStream* audioStreams[4];
+    int testInt = 0;
   private:
 
 

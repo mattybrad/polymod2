@@ -3,13 +3,13 @@
 #include "Arduino.h"
 #include "AudioStreamSet.h"
 #include "VirtualSocket.h"
-#include "Constants.h"
+#include "VirtualPatchCable.h"
 
 class VirtualModule {
   public:
     VirtualModule();
+    virtual ~VirtualModule();
     virtual void update() {};
-    virtual void destroy() {};
     VirtualSocket *sockets[8];
   private:
 

@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "PhysicalModule.h"
 #include "VCO.h"
+#include "Master.h"
 
 PhysicalModule::PhysicalModule() {
 
@@ -16,7 +17,6 @@ void PhysicalModule::updateID(int newID) {
       // no previous module in slot, no need to remove any virtual modules
     } else {
       // module has been removed from slot, remove virtual module
-      virtualModule->destroy();
       delete virtualModule;
       virtualModule = NULL;
     }
@@ -28,7 +28,9 @@ void PhysicalModule::updateID(int newID) {
       switch(newID) {
         case 136:
         virtualModule = new VCO();
-        Serial.println("HELLO");
+        break;
+        case 255:
+        virtualModule = new Master();
         break;
       }
     }

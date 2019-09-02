@@ -35,12 +35,19 @@ int numNewPatchReadings;
 PhysicalPatchCable *physicalPatchCables[MAX_CABLES]; // all currently connected physical patch cables
 AudioControlSGTL5000 sgtl; // teensy audio board chip
 AudioOutputI2S mainOutput; // teensy audio board output
+AudioConnection *mainConnections[4];
+AudioMixer4 mainMixer; // temporary - will need a more flexible mixer for more than 4 channels
+AudioSynthWaveform testWave1;
+AudioSynthWaveform testWave2;
+AudioSynthWaveform testWave3;
+AudioSynthWaveform testWave4;
+//AudioConnection testWaveConnection1(testWave1,0,mainMixer,0);
+//AudioConnection testWaveConnection2(testWave2,0,mainMixer,1);
+//AudioConnection testWaveConnection3(testWave3,0,mainMixer,2);
+//AudioConnection testWaveConnection4(testWave4,0,mainMixer,3);
+AudioConnection mixerToOutput1(mainMixer,0,mainOutput,0);
+AudioConnection mixerToOutput2(mainMixer,0,mainOutput,1);
 Menu menu = Menu();
-
-// test audio board
-//AudioSynthWaveformSine   sine1;
-//AudioConnection          patchCord1(sine1, 0, mainOutput, 0);
-//AudioConnection          patchCord2(sine1, 0, mainOutput, 1);
 
 // buttons
 Bounce incButton = Bounce();
@@ -67,22 +74,30 @@ void setup() {
   yesButton.interval(25);
   noButton.interval(25);
 
-  // test audio board
-  AudioMemory(15);
+  // init audio board
+  AudioMemory(20);
   sgtl.enable();
   sgtl.volume(0.5);
-  //sine1.amplitude(0.5);
+  physicalModules[0].updateID(255); // module 0 hardwired as master module
+  mainConnections[0] = new AudioConnection(*(physicalModules[0].virtualModule->sockets[0]->audioStreamSet.audioStreams[0]), 0, mainMixer, 0);
+  mainConnections[1] = new AudioConnection(*(physicalModules[0].virtualModule->sockets[0]->audioStreamSet.audioStreams[1]), 0, mainMixer, 1);
+  mainConnections[2] = new AudioConnection(*(physicalModules[0].virtualModule->sockets[0]->audioStreamSet.audioStreams[2]), 0, mainMixer, 2);
+  mainConnections[3] = new AudioConnection(*(physicalModules[0].virtualModule->sockets[0]->audioStreamSet.audioStreams[3]), 0, mainMixer, 3);
+  mainMixer.gain(0,0.1);
+  mainMixer.gain(1,0.1);
+  mainMixer.gain(2,0.1);
+  mainMixer.gain(3,0.1);
+  testWave1.begin(0.3,100,WAVEFORM_SINE);
+  testWave2.begin(0.3,250,WAVEFORM_SINE);
+  testWave3.begin(0.3,300,WAVEFORM_SINE);
+  testWave4.begin(0.3,400,WAVEFORM_SINE);
 
   for(int i=0; i<MAX_CABLES; i++) {
     physicalPatchCables[i] = NULL;
   }
-
-  Serial.println("STARTED SKETCH");
 }
 
 void loop() {
-  //sine1.frequency(tempFreq);
-
   while(Serial1.available()) {
     byte thisByte = Serial1.read();
     if(nextPosition==0) {
@@ -174,9 +189,17 @@ void loop() {
   }
 }
 
+bool testRoutingDone = false;
+VirtualPatchCable *testCable;
 void updatePhysicalModuleList() {
-  for(int i=0; i<MAX_MODULES; i++) {
+  // skip position 0, reserved for master module
+  for(int i=1; i<MAX_MODULES; i++) {
     physicalModules[i].updateID(moduleIDReadings[i]);
+  }
+  if(!testRoutingDone&&physicalModules[2].virtualModule!=NULL) {
+    testCable = new VirtualPatchCable(physicalModules[2].virtualModule->sockets[0]->audioStreamSet,physicalModules[0].virtualModule->sockets[0]->audioStreamSet);
+    Serial.println("added test patch cable");
+    testRoutingDone = true;
   }
 }
 
