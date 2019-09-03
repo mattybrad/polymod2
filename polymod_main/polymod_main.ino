@@ -70,6 +70,14 @@ void setup() {
   AudioMemory(20);
   sgtl.enable();
   sgtl.volume(0.5);
+
+  for(int i=0; i<MAX_CABLES; i++) {
+    physicalPatchCables[i] = NULL;
+  }
+  for(int i=0; i<MAX_MODULES; i++) {
+    physicalModules[i] = NULL;
+  }
+
   physicalModules[0] = new PhysicalModule(255); // module 0 hardwired as master module
   mainConnections[0] = new AudioConnection(*(physicalModules[0]->virtualModule->sockets[0]->audioStreamSet.audioStreams[0]), 0, mainMixer, 0);
   mainConnections[1] = new AudioConnection(*(physicalModules[0]->virtualModule->sockets[0]->audioStreamSet.audioStreams[1]), 0, mainMixer, 1);
@@ -79,13 +87,6 @@ void setup() {
   mainMixer.gain(1,0.1);
   mainMixer.gain(2,0.1);
   mainMixer.gain(3,0.1);
-
-  for(int i=0; i<MAX_CABLES; i++) {
-    physicalPatchCables[i] = NULL;
-  }
-  for(int i=0; i<MAX_MODULES; i++) {
-    physicalModules[i] = NULL;
-  }
 }
 
 void loop() {
@@ -190,6 +191,8 @@ void updatePhysicalModuleList() {
         // no change
       } else {
         // module has been removed - destroy physical module object
+        Serial.println("REMOVE MODULE: ");
+        Serial.println(i);
         delete physicalModules[i];
         physicalModules[i]=NULL;
         anyChanges= true;
@@ -227,7 +230,7 @@ void updatePhysicalPatchCables() {
     if(physicalPatchCables[i] != NULL) {
       cableFound = false;
       for(j=0; j<numNewPatchReadings; j++) {
-        if(newPatchReadings[j][0]==physicalPatchCables[i]->socketA&&newPatchReadings[j][1]==physicalPatchCables[i]->socketB) {
+        if(newPatchReadings[j][0]==physicalPatchCables[i]->physicalSocketA&&newPatchReadings[j][1]==physicalPatchCables[i]->physicalSocketB) {
           cableFound = true;
           cableAlreadyExists[j] = true;
         }
@@ -263,4 +266,30 @@ void updatePhysicalPatchCables() {
 
 void updateVirtualPatchCables() {
   Serial.println("Update virtual patch cables");
+  for(int i=0; i<MAX_CABLES; i++) {
+    if(physicalPatchCables[i] != NULL) {
+      int socketA = physicalPatchCables[i]->physicalSocketA;
+      int socketB = physicalPatchCables[i]->physicalSocketB;
+      int moduleA = socketA / 8;
+      int moduleSocketA = socketA % 8;
+      int moduleB = socketB / 8;
+      int moduleSocketB = socketB % 8;
+      Serial.println("TRYING TO CREATE VIRTUAL PATCH CABLE...");
+      Serial.println(moduleA);
+      Serial.println(moduleSocketA);
+      Serial.println(moduleB);
+      Serial.println(moduleSocketB);
+      if(physicalModules[moduleA] != NULL && physicalModules[moduleB] != NULL) {
+        //VirtualSocket &vSocketA = (physicalModules[moduleA]->virtualModule->getVirtualSocket(moduleSocketA));
+        //VirtualSocket &vSocketB = (physicalModules[moduleB]->virtualModule->getVirtualSocket(moduleSocketB));
+        physicalPatchCables[i]->update(
+          physicalModules[moduleA]->virtualModule->sockets[moduleSocketA],
+          physicalModules[moduleB]->virtualModule->sockets[moduleSocketB]
+        );
+        Serial.println("SUCCESS?");
+      } else {
+        Serial.println("FAIL");
+      }
+    }
+  }
 }

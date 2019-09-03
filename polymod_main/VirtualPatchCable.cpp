@@ -19,4 +19,5 @@ VirtualPatchCable::~VirtualPatchCable() {
 	Serial.print(sourceSet->testInt);
 	Serial.print("--->");
 	Serial.println(destSet->testInt);
+	// important to handle disconnections/deletions here to prevent memory leaks
 }

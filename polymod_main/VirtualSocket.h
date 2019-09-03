@@ -5,7 +5,7 @@
 
 class VirtualSocket {
   public:
-    VirtualSocket(bool initType);
+    VirtualSocket(int initType);
     int type;
     AudioStreamSet audioStreamSet;
   private:

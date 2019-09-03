@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "VirtualSocket.h"
 
-VirtualSocket::VirtualSocket(bool initType) {
+VirtualSocket::VirtualSocket(int initType) {
 	type = initType;
 	audioStreamSet.audioStreams[0] = &_amplifiers[0];
 	audioStreamSet.audioStreams[1] = &_amplifiers[1];

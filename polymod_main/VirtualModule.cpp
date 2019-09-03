@@ -10,3 +10,7 @@ VirtualModule::VirtualModule() {
 VirtualModule::~VirtualModule() {
 	// destroy
 }
+
+VirtualSocket VirtualModule::getVirtualSocket(int socketNum) {
+	return *sockets[socketNum];
+}

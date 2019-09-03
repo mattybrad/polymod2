@@ -9,6 +9,7 @@ class VirtualModule {
   public:
     VirtualModule();
     virtual ~VirtualModule();
+    VirtualSocket getVirtualSocket(int socketNum);
     virtual void update() {};
     VirtualSocket *sockets[8];
   private:
