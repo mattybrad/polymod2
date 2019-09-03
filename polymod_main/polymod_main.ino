@@ -183,6 +183,8 @@ void loop() {
 
 void updatePhysicalModuleList() {
   bool anyChanges = false;
+  // temp - add dummy module
+  moduleIDReadings[8] = 136;
   // skip position 0, reserved for master module
   for(int i=1; i<MAX_MODULES; i++) {
     if(moduleIDReadings[i] == 0) {
@@ -191,7 +193,6 @@ void updatePhysicalModuleList() {
         // no change
       } else {
         // module has been removed - destroy physical module object
-        Serial.println("REMOVE MODULE: ");
         Serial.println(i);
         delete physicalModules[i];
         physicalModules[i]=NULL;
@@ -203,7 +204,6 @@ void updatePhysicalModuleList() {
         // no change
       } else {
         // module has been added - create new physical module object
-        Serial.println("ADDED VIA LOOP");
         physicalModules[i] = new PhysicalModule(moduleIDReadings[i]);
         anyChanges = true;
       }
@@ -217,9 +217,9 @@ void updatePhysicalPatchCables() {
   bool anyChanges = false;
 
   // temp - adding dummy patch cable readings
-  newPatchReadings[numNewPatchReadings][0] = 0;
+  /*newPatchReadings[numNewPatchReadings][0] = 0;
   newPatchReadings[numNewPatchReadings][1] = 16;
-  numNewPatchReadings ++;
+  numNewPatchReadings ++;*/
 
   int i,j;
   for(i=0; i<MAX_CABLES; i++) {
