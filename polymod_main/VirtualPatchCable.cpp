@@ -20,4 +20,8 @@ VirtualPatchCable::~VirtualPatchCable() {
 	Serial.print("--->");
 	Serial.println(destSet->testInt);
 	// important to handle disconnections/deletions here to prevent memory leaks
+	audioConnections[0]->disconnect();
+	audioConnections[1]->disconnect();
+	audioConnections[2]->disconnect();
+	audioConnections[3]->disconnect();
 }
