@@ -280,8 +280,6 @@ void updateVirtualPatchCables() {
       Serial.println(moduleB);
       Serial.println(moduleSocketB);
       if(physicalModules[moduleA] != NULL && physicalModules[moduleB] != NULL) {
-        //VirtualSocket &vSocketA = (physicalModules[moduleA]->virtualModule->getVirtualSocket(moduleSocketA));
-        //VirtualSocket &vSocketB = (physicalModules[moduleB]->virtualModule->getVirtualSocket(moduleSocketB));
         physicalPatchCables[i]->update(
           physicalModules[moduleA]->virtualModule->sockets[moduleSocketA],
           physicalModules[moduleB]->virtualModule->sockets[moduleSocketB]

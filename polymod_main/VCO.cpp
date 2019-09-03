@@ -2,29 +2,22 @@
 #include "VCO.h"
 
 VCO::VCO() {
-	Serial.println("new VCO module created");
-	sockets[0] = new VirtualSocket(OUTPUT);
-	sockets[1] = new VirtualSocket(OUTPUT);
-	_oscSquare.testInt = 8;
-	sockets[0]->audioStreamSet.testInt = 5;
-	_oscSquare.audioStreams[0] = &_oscSquareX[0];
-	_oscSquare.audioStreams[1] = &_oscSquareX[1];
-	_oscSquare.audioStreams[2] = &_oscSquareX[2];
-	_oscSquare.audioStreams[3] = &_oscSquareX[3];
-	_oscSine.audioStreams[0] = &_oscSineX[0];
-	_oscSine.audioStreams[1] = &_oscSineX[1];
-	_oscSine.audioStreams[2] = &_oscSineX[2];
-	_oscSine.audioStreams[3] = &_oscSineX[3];
-	_oscSquareX[0].begin(0.5,50,WAVEFORM_SQUARE);
-	_oscSquareX[1].begin(0.5,75,WAVEFORM_SQUARE);
-	_oscSquareX[2].begin(0.5,100,WAVEFORM_SQUARE);
-	_oscSquareX[3].begin(0.5,150,WAVEFORM_SQUARE);
-	_oscSineX[0].begin(0.5,200,WAVEFORM_SINE);
-	_oscSineX[1].begin(0.5,251,WAVEFORM_SINE);
-	_oscSineX[2].begin(0.5,300,WAVEFORM_SINE);
-	_oscSineX[3].begin(0.5,400,WAVEFORM_SINE);
-	_patchCable1 = new VirtualPatchCable(_oscSquare, sockets[0]->audioStreamSet);
-	_patchCable2 = new VirtualPatchCable(_oscSine, sockets[1]->audioStreamSet);
+	Serial.println("New virtual VCO module created");
+	for(int i=0; i<4; i++) {
+		sockets[i] = new VirtualSocket(OUTPUT);
+		_oscSawSet.audioStreams[i] = &_oscSaw[i];
+		_oscSquareSet.audioStreams[i] = &_oscSquare[i];
+		_oscTriangleSet.audioStreams[i] = &_oscTriangle[i];
+		_oscSineSet.audioStreams[i] = &_oscSine[i];
+		_oscSaw[i].begin(0.5,150+50*i,WAVEFORM_SAWTOOTH);
+		_oscSquare[i].begin(0.5,150+50*i,WAVEFORM_SQUARE);
+		_oscTriangle[i].begin(0.5,150+50*i,WAVEFORM_TRIANGLE);
+		_oscSine[i].begin(0.5,150+50*i,WAVEFORM_SINE);
+	}
+	_patchCable1 = new VirtualPatchCable(_oscSawSet, sockets[0]->audioStreamSet);
+	_patchCable2 = new VirtualPatchCable(_oscSquareSet, sockets[1]->audioStreamSet);
+	_patchCable3 = new VirtualPatchCable(_oscTriangleSet, sockets[2]->audioStreamSet);
+	_patchCable4 = new VirtualPatchCable(_oscSineSet, sockets[3]->audioStreamSet);
 }
 
 VCO::~VCO() {
