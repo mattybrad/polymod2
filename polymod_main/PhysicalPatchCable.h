@@ -4,7 +4,8 @@
 
 class PhysicalPatchCable {
   public:
-    PhysicalPatchCable();
+    PhysicalPatchCable(int initSocketA, int initSocketB);
+    ~PhysicalPatchCable();
     int socketA;
     int socketB;
 };

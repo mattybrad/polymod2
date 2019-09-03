@@ -29,7 +29,7 @@
 
 // more definitions
 byte moduleIDReadings[MAX_MODULES];
-PhysicalModule physicalModules[MAX_MODULES]; // all physical modules
+PhysicalModule *physicalModules[MAX_MODULES]; // all physical modules
 int newPatchReadings[MAX_CABLES][2];
 int numNewPatchReadings;
 PhysicalPatchCable *physicalPatchCables[MAX_CABLES]; // all currently connected physical patch cables
@@ -70,11 +70,11 @@ void setup() {
   AudioMemory(20);
   sgtl.enable();
   sgtl.volume(0.5);
-  physicalModules[0].updateID(255); // module 0 hardwired as master module
-  mainConnections[0] = new AudioConnection(*(physicalModules[0].virtualModule->sockets[0]->audioStreamSet.audioStreams[0]), 0, mainMixer, 0);
-  mainConnections[1] = new AudioConnection(*(physicalModules[0].virtualModule->sockets[0]->audioStreamSet.audioStreams[1]), 0, mainMixer, 1);
-  mainConnections[2] = new AudioConnection(*(physicalModules[0].virtualModule->sockets[0]->audioStreamSet.audioStreams[2]), 0, mainMixer, 2);
-  mainConnections[3] = new AudioConnection(*(physicalModules[0].virtualModule->sockets[0]->audioStreamSet.audioStreams[3]), 0, mainMixer, 3);
+  physicalModules[0] = new PhysicalModule(255); // module 0 hardwired as master module
+  mainConnections[0] = new AudioConnection(*(physicalModules[0]->virtualModule->sockets[0]->audioStreamSet.audioStreams[0]), 0, mainMixer, 0);
+  mainConnections[1] = new AudioConnection(*(physicalModules[0]->virtualModule->sockets[0]->audioStreamSet.audioStreams[1]), 0, mainMixer, 1);
+  mainConnections[2] = new AudioConnection(*(physicalModules[0]->virtualModule->sockets[0]->audioStreamSet.audioStreams[2]), 0, mainMixer, 2);
+  mainConnections[3] = new AudioConnection(*(physicalModules[0]->virtualModule->sockets[0]->audioStreamSet.audioStreams[3]), 0, mainMixer, 3);
   mainMixer.gain(0,0.1);
   mainMixer.gain(1,0.1);
   mainMixer.gain(2,0.1);
@@ -82,6 +82,9 @@ void setup() {
 
   for(int i=0; i<MAX_CABLES; i++) {
     physicalPatchCables[i] = NULL;
+  }
+  for(int i=0; i<MAX_MODULES; i++) {
+    physicalModules[i] = NULL;
   }
 }
 
@@ -94,7 +97,7 @@ void loop() {
       if(thisByte == 0) {
         //Serial.println("loop end");
         updatePhysicalModuleList();
-        updatePhysicalPatchCableList();
+        updatePhysicalPatchCables();
         numNewPatchReadings = 0;
       } else if(thisByte>0) {
         nextPosition++;
@@ -161,7 +164,7 @@ void loop() {
     }
   }
 
-  // menu button update code
+  // menu button update code (probably not the best place for this, remnant from earlier code, fix later)
   incButton.update();
   decButton.update();
   yesButton.update();
@@ -177,22 +180,44 @@ void loop() {
   }
 }
 
-bool testRoutingDone = false;
-VirtualPatchCable *testCable;
 void updatePhysicalModuleList() {
+  bool anyChanges = false;
   // skip position 0, reserved for master module
   for(int i=1; i<MAX_MODULES; i++) {
-    physicalModules[i].updateID(moduleIDReadings[i]);
+    if(moduleIDReadings[i] == 0) {
+      // no physical module present
+      if(physicalModules[i]==NULL) {
+        // no change
+      } else {
+        // module has been removed - destroy physical module object
+        delete physicalModules[i];
+        physicalModules[i]=NULL;
+        anyChanges= true;
+      }
+    } else {
+      // physical module present
+      if(physicalModules[i]->id==moduleIDReadings[i]) {
+        // no change
+      } else {
+        // module has been added - create new physical module object
+        Serial.println("ADDED VIA LOOP");
+        physicalModules[i] = new PhysicalModule(moduleIDReadings[i]);
+        anyChanges = true;
+      }
+    }
   }
-  if(!testRoutingDone&&physicalModules[2].virtualModule!=NULL) {
-    testCable = new VirtualPatchCable(physicalModules[2].virtualModule->sockets[0]->audioStreamSet,physicalModules[0].virtualModule->sockets[0]->audioStreamSet);
-    Serial.println("added test patch cable");
-    testRoutingDone = true;
-  }
+  if(anyChanges) updateVirtualPatchCables(); // possibly unnecessary? but shouldn't break anything
 }
 
 bool cableAlreadyExists[MAX_CABLES];
-void updatePhysicalPatchCableList() {
+void updatePhysicalPatchCables() {
+  bool anyChanges = false;
+
+  // temp - adding dummy patch cable readings
+  newPatchReadings[numNewPatchReadings][0] = 0;
+  newPatchReadings[numNewPatchReadings][1] = 16;
+  numNewPatchReadings ++;
+
   int i,j;
   for(i=0; i<MAX_CABLES; i++) {
     cableAlreadyExists[i] = false;
@@ -209,12 +234,9 @@ void updatePhysicalPatchCableList() {
       }
       if(!cableFound) {
         // no reading for this cable any more - remove from list
-        Serial.println("REMOVED PATCH CABLE");
-        Serial.println(i);
-        Serial.println(physicalPatchCables[i]->socketA);
-        Serial.println(physicalPatchCables[i]->socketB);
         delete physicalPatchCables[i];
         physicalPatchCables[i] = NULL;
+        anyChanges = true;
       }
     }
   }
@@ -225,16 +247,20 @@ void updatePhysicalPatchCableList() {
       bool foundSpace = false;
       for(j=0; j<MAX_CABLES&&!foundSpace; j++) {
         if(physicalPatchCables[j] == NULL) {
-          physicalPatchCables[j] = new PhysicalPatchCable();
-          physicalPatchCables[j]->socketA = newPatchReadings[i][0];
-          physicalPatchCables[j]->socketB = newPatchReadings[i][1];
+          physicalPatchCables[j] = new PhysicalPatchCable(newPatchReadings[i][0], newPatchReadings[i][1]);
           foundSpace = true;
-          Serial.println("ADDED PATCH CABLE");
-          Serial.println(j);
-          Serial.println(physicalPatchCables[j]->socketA);
-          Serial.println(physicalPatchCables[j]->socketB);
         }
+      }
+      if(foundSpace) {
+        anyChanges = true;
       }
     }
   }
+  if(anyChanges) {
+    updateVirtualPatchCables();
+  }
+}
+
+void updateVirtualPatchCables() {
+  Serial.println("Update virtual patch cables");
 }

@@ -8,6 +8,7 @@
 class VirtualPatchCable {
   public:
     VirtualPatchCable(AudioStreamSet& initSourceSet, AudioStreamSet& initDestSet);
+    ~VirtualPatchCable();
     AudioStreamSet* sourceSet;
     AudioStreamSet* destSet;
     AudioConnection *audioConnections[4];
