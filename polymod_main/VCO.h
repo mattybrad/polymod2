@@ -10,8 +10,11 @@ class VCO : public VirtualModule {
 		virtual void update();
 	private:
 		AudioSynthWaveform _oscSquareX[4];
+		AudioSynthWaveform _oscSineX[4];
 		AudioStreamSet _oscSquare;
-		VirtualPatchCable *_patchCable;
+		AudioStreamSet _oscSine;
+		VirtualPatchCable *_patchCable1;
+		VirtualPatchCable *_patchCable2;
 };
 
 #endif
