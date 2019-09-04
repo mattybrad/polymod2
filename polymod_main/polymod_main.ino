@@ -191,7 +191,6 @@ void updatePhysicalModuleList() {
         // no change
       } else {
         // module has been removed - destroy physical module object
-        Serial.println(i);
         delete physicalModules[i];
         physicalModules[i]=NULL;
         anyChanges= true;
@@ -272,21 +271,11 @@ void updateVirtualPatchCables() {
       int moduleSocketA = socketA % 8;
       int moduleB = socketB / 8;
       int moduleSocketB = socketB % 8;
-      Serial.println("TRYING TO CREATE VIRTUAL PATCH CABLE...");
-      Serial.println(moduleA);
-      Serial.println(moduleSocketA);
-      Serial.println(moduleB);
-      Serial.println(moduleSocketB);
       if(physicalModules[moduleA] != NULL && physicalModules[moduleB] != NULL) {
-        if(physicalModules[moduleA]->virtualModule != NULL && physicalModules[moduleB]->virtualModule != NULL) {
-          physicalPatchCables[i]->update(
-            physicalModules[moduleA]->virtualModule->sockets[moduleSocketA],
-            physicalModules[moduleB]->virtualModule->sockets[moduleSocketB]
-          );
-          Serial.println("SUCCESS?");
-        } else {
-          Serial.println("FAIL (virtual module didn't exist)");
-        }
+        physicalPatchCables[i]->update(
+          physicalModules[moduleA]->virtualModule->sockets[moduleSocketA],
+          physicalModules[moduleB]->virtualModule->sockets[moduleSocketB]
+        );
       } else {
         Serial.println("FAIL (module didn't exist)");
       }

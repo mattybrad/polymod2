@@ -4,9 +4,9 @@
 VCO::VCO() {
 	Serial.println("New virtual VCO module created");
 	sockets[0] = new VirtualSocket(OUTPUT);
+	sockets[1] = new VirtualSocket(OUTPUT);
 	sockets[2] = new VirtualSocket(OUTPUT);
 	sockets[3] = new VirtualSocket(OUTPUT);
-	sockets[4] = new VirtualSocket(OUTPUT);
 	for(int i=0; i<MAX_POLYPHONY; i++) {
 		_oscSawSet.audioStreams[i] = &_oscSaw[i];
 		_oscSquareSet.audioStreams[i] = &_oscSquare[i];
