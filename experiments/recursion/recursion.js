@@ -34,23 +34,21 @@ sets.j.inputs.push(sets.k);
 sets.k.inputs.push(sets.c);
 sets.j.inputs.push(sets.l);
 sets.l.inputs.push(sets.m);
+sets.l.inputs.push(sets.l);
+sets.d.inputs.push(sets.d);
 
 function checkSet(set) {
-	var returnVal = set.hardcodedPoly;
-	var anyInputsAlreadyPoly = false;
+	if(set.hardcodedPoly) set.poly = true;
 	var x;
 	for(x=0;x<set.inputs.length;x++) {
-		if(set.inputs[x].poly) anyInputsAlreadyPoly = true;
+		if(set.inputs[x].poly) set.poly = true;
 	}
-	if(anyInputsAlreadyPoly) {
-		returnVal = true;
-	} else {
+	if(!set.poly) {
 		for(x=0;x<set.inputs.length;x++) {
-			checkSet(set.inputs[x]);
-			if(set.inputs[x].poly) returnVal = true;
+			if(set!=set.inputs[x]) checkSet(set.inputs[x]);
+			if(set.inputs[x].poly) set.poly = true;
 		}
 	}
-	set.poly = returnVal;
 }
 
 checkSet(sets.b);
