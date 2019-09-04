@@ -3,15 +3,16 @@
 #include "Arduino.h"
 #include "AudioStreamSet.h"
 #include "VirtualSocket.h"
+#include "Constants.h"
 #include <Audio.h>
 
 class VirtualPatchCable {
   public:
-    VirtualPatchCable(AudioStreamSet& initSourceSet, AudioStreamSet& initDestSet);
+    VirtualPatchCable(AudioStreamSet initSourceSet, AudioStreamSet initDestSet);
     ~VirtualPatchCable();
-    AudioStreamSet* sourceSet;
-    AudioStreamSet* destSet;
-    AudioConnection *audioConnections[4];
+    AudioStreamSet *sourceSet;
+    AudioStreamSet *destSet;
+    AudioConnection *audioConnections[MAX_POLYPHONY];
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define VirtualSocket_h
 #include "Arduino.h"
 #include "AudioStreamSet.h"
+#include "Constants.h"
 
 class VirtualSocket {
   public:
@@ -9,7 +10,7 @@ class VirtualSocket {
     int type;
     AudioStreamSet audioStreamSet;
   private:
-    AudioAmplifier _amplifiers[4];
+    AudioAmplifier _amplifiers[MAX_POLYPHONY];
 };
 
 #endif

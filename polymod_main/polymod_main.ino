@@ -13,13 +13,11 @@
 #include "PhysicalPatchCable.h"
 #include "Menu.h"
 
+// include Constants
+#include "Constants.h"
+
 // include specific modules - this part can be generated automatically
 // AUTO GENERATED INCLUDE STATEMENTS GOES HERE
-
-// define constants
-#define MAX_MODULES 64
-#define MAX_POLYPHONY 4
-#define MAX_CABLES 200
 
 // define pins
 #define DEC_BUTTON_PIN 2
@@ -35,7 +33,7 @@ int numNewPatchReadings;
 PhysicalPatchCable *physicalPatchCables[MAX_CABLES]; // all currently connected physical patch cables
 AudioControlSGTL5000 sgtl; // teensy audio board chip
 AudioOutputI2S mainOutput; // teensy audio board output
-AudioConnection *mainConnections[4];
+AudioConnection *mainConnections[MAX_POLYPHONY];
 AudioMixer4 mainMixer; // temporary - will need a more flexible mixer for more than 4 channels
 AudioConnection mixerToOutput1(mainMixer,0,mainOutput,0);
 AudioConnection mixerToOutput2(mainMixer,0,mainOutput,1);
@@ -79,10 +77,10 @@ void setup() {
   }
 
   physicalModules[0] = new PhysicalModule(255); // module 0 hardwired as master module
-  mainConnections[0] = new AudioConnection(*(physicalModules[0]->virtualModule->sockets[0]->audioStreamSet.audioStreams[0]), 0, mainMixer, 0);
-  mainConnections[1] = new AudioConnection(*(physicalModules[0]->virtualModule->sockets[0]->audioStreamSet.audioStreams[1]), 0, mainMixer, 1);
-  mainConnections[2] = new AudioConnection(*(physicalModules[0]->virtualModule->sockets[0]->audioStreamSet.audioStreams[2]), 0, mainMixer, 2);
-  mainConnections[3] = new AudioConnection(*(physicalModules[0]->virtualModule->sockets[0]->audioStreamSet.audioStreams[3]), 0, mainMixer, 3);
+  // temporary way of connecting master module
+  for(int i=0; i<MAX_POLYPHONY; i++) {
+    mainConnections[i] = new AudioConnection(*(physicalModules[0]->virtualModule->sockets[0]->audioStreamSet.audioStreams[i]), 0, mainMixer, i);
+  }
   mainMixer.gain(0,0.1);
   mainMixer.gain(1,0.1);
   mainMixer.gain(2,0.1);
@@ -280,13 +278,17 @@ void updateVirtualPatchCables() {
       Serial.println(moduleB);
       Serial.println(moduleSocketB);
       if(physicalModules[moduleA] != NULL && physicalModules[moduleB] != NULL) {
-        physicalPatchCables[i]->update(
-          physicalModules[moduleA]->virtualModule->sockets[moduleSocketA],
-          physicalModules[moduleB]->virtualModule->sockets[moduleSocketB]
-        );
-        Serial.println("SUCCESS?");
+        if(physicalModules[moduleA]->virtualModule != NULL && physicalModules[moduleB]->virtualModule != NULL) {
+          physicalPatchCables[i]->update(
+            physicalModules[moduleA]->virtualModule->sockets[moduleSocketA],
+            physicalModules[moduleB]->virtualModule->sockets[moduleSocketB]
+          );
+          Serial.println("SUCCESS?");
+        } else {
+          Serial.println("FAIL (virtual module didn't exist)");
+        }
       } else {
-        Serial.println("FAIL");
+        Serial.println("FAIL (module didn't exist)");
       }
     }
   }

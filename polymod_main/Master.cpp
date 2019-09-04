@@ -2,9 +2,8 @@
 #include "Master.h"
 
 Master::Master() {
-	Serial.println("new master module created");
+	Serial.println("New master module created");
 	sockets[0] = new VirtualSocket(INPUT);
-	sockets[0]->audioStreamSet.testInt = 11;
 }
 
 Master::~Master() {

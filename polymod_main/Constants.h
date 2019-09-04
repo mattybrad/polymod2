@@ -1,0 +1,3 @@
+#define MAX_MODULES 64
+#define MAX_POLYPHONY 4
+#define MAX_CABLES 200

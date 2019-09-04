@@ -2,6 +2,7 @@
 #define VCO_h
 #include "Arduino.h"
 #include "VirtualModule.h"
+#include "Constants.h"
 
 class VCO : public VirtualModule {
 	public:
@@ -9,10 +10,10 @@ class VCO : public VirtualModule {
 		~VCO();
 		virtual void update();
 	private:
-		AudioSynthWaveform _oscSaw[4];
-		AudioSynthWaveform _oscSquare[4];
-		AudioSynthWaveform _oscTriangle[4];
-		AudioSynthWaveform _oscSine[4];
+		AudioSynthWaveform _oscSaw[MAX_POLYPHONY];
+		AudioSynthWaveform _oscSquare[MAX_POLYPHONY];
+		AudioSynthWaveform _oscTriangle[MAX_POLYPHONY];
+		AudioSynthWaveform _oscSine[MAX_POLYPHONY];
 		AudioStreamSet _oscSawSet;
 		AudioStreamSet _oscSquareSet;
 		AudioStreamSet _oscTriangleSet;
