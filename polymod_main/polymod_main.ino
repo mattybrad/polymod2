@@ -32,11 +32,6 @@ int newPatchReadings[MAX_CABLES][2];
 int numNewPatchReadings;
 PhysicalPatchCable *physicalPatchCables[MAX_CABLES]; // all currently connected physical patch cables
 AudioControlSGTL5000 sgtl; // teensy audio board chip
-AudioOutputI2S mainOutput; // teensy audio board output
-AudioConnection *mainConnections[MAX_POLYPHONY];
-AudioMixer4 mainMixer; // temporary - will need a more flexible mixer for more than 4 channels
-AudioConnection mixerToOutput1(mainMixer,0,mainOutput,0);
-AudioConnection mixerToOutput2(mainMixer,0,mainOutput,1);
 Menu menu = Menu();
 
 // buttons
@@ -65,9 +60,9 @@ void setup() {
   noButton.interval(25);
 
   // init audio board
-  AudioMemory(20);
+  AudioMemory(50);
   sgtl.enable();
-  sgtl.volume(0.5);
+  sgtl.volume(0.3);
 
   for(int i=0; i<MAX_CABLES; i++) {
     physicalPatchCables[i] = NULL;
@@ -77,14 +72,6 @@ void setup() {
   }
 
   physicalModules[0] = new PhysicalModule(255); // module 0 hardwired as master module
-  // temporary way of connecting master module
-  for(int i=0; i<MAX_POLYPHONY; i++) {
-    mainConnections[i] = new AudioConnection(*(physicalModules[0]->virtualModule->sockets[0]->audioStreamSet.audioStreams[i]), 0, mainMixer, i);
-  }
-  mainMixer.gain(0,0.1);
-  mainMixer.gain(1,0.1);
-  mainMixer.gain(2,0.1);
-  mainMixer.gain(3,0.1);
 }
 
 void loop() {
@@ -97,6 +84,7 @@ void loop() {
         //Serial.println("loop end");
         updatePhysicalModuleList();
         updatePhysicalPatchCables();
+        //Serial.println(AudioMemoryUsageMax());
         numNewPatchReadings = 0;
       } else if(thisByte>0) {
         nextPosition++;
@@ -183,6 +171,7 @@ void updatePhysicalModuleList() {
   bool anyChanges = false;
   // temp - add dummy module
   moduleIDReadings[8] = 136;
+  moduleIDReadings[2] = 0;
   // skip position 0, reserved for master module
   for(int i=1; i<MAX_MODULES; i++) {
     if(moduleIDReadings[i] == 0) {

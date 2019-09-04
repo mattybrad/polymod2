@@ -2,6 +2,7 @@
 #include "VirtualSocket.h"
 
 VirtualSocket::VirtualSocket(int initType) {
+	Serial.println("New virtual socket created");
 	type = initType;
 	for(int i=0; i<MAX_POLYPHONY; i++) {
 		audioStreamSet.audioStreams[i] = &_amplifiers[i];
