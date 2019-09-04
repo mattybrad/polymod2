@@ -3,7 +3,6 @@ class Set {
 		this.inputs = [];
 		this.hardcodedPoly = false;
 		this.poly = false;
-		this.checked = false;
 	}
 }
 
@@ -19,6 +18,8 @@ sets.h = new Set();
 sets.i = new Set();
 sets.j = new Set();
 sets.k = new Set();
+sets.l = new Set();
+sets.m = new Set();
 sets.g.hardcodedPoly = true;
 
 sets.b.inputs.push(sets.c);
@@ -30,14 +31,25 @@ sets.d.inputs.push(sets.h);
 sets.h.inputs.push(sets.i);
 sets.i.inputs.push(sets.j);
 sets.j.inputs.push(sets.k);
+sets.k.inputs.push(sets.c);
+sets.j.inputs.push(sets.l);
+sets.l.inputs.push(sets.m);
 
 function checkSet(set) {
 	var returnVal = set.hardcodedPoly;
-	for(var x=0;x<set.inputs.length;x++) {
-		checkSet(set.inputs[x]);
-		if(set.inputs[x].poly) returnVal = true;
+	var anyInputsAlreadyPoly = false;
+	var x;
+	for(x=0;x<set.inputs.length;x++) {
+		if(set.inputs[x].poly) anyInputsAlreadyPoly = true;
 	}
-	set.checked = true;
+	if(anyInputsAlreadyPoly) {
+		returnVal = true;
+	} else {
+		for(x=0;x<set.inputs.length;x++) {
+			checkSet(set.inputs[x]);
+			if(set.inputs[x].poly) returnVal = true;
+		}
+	}
 	set.poly = returnVal;
 }
 
