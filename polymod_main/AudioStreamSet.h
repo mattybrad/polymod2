@@ -9,6 +9,7 @@ class AudioStreamSet {
     AudioStreamSet();
     AudioStream *audioStreams[MAX_POLYPHONY];
     int socketNum = 0;
+    bool isPoly = false;
   private:
 
 

@@ -300,7 +300,7 @@ void updateVirtualPatchCables() {
 
 }
 
-/*void setPolyMode(AudioStreamSet set) {
+void setPolyMode(AudioStreamSet set) {
   // first check if set is hardcoded as poly (e.g. MIDI to CV module output)
   if(set.hardcodedPoly) set.poly = true;
   // second, check if any inputs have already been found to be poly
@@ -312,7 +312,7 @@ void updateVirtualPatchCables() {
     setPolyMode(set)
     // if any of the inputs are now poly, set.poly = true
   }
-}*/
+}
 
 void report_ram_stat(const char* aname, uint32_t avalue) {
   Serial.print(aname);
