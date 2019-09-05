@@ -6,7 +6,7 @@ VirtualPatchCable::VirtualPatchCable(AudioStreamSet initSourceSet, int sourceSoc
 	destSet = &initDestSet;
 	Serial.println("Added virtual patch cable");
 	for(int i=0; i<MAX_POLYPHONY; i++) {
-		audioConnections[i] = new AudioConnection(*sourceSet->audioStreams[i], sourceSet->socketNum, *destSet->audioStreams[i], destSet->socketNum);
+		audioConnections[i] = new AudioConnection(*sourceSet->audioStreams[i], sourceSocketNum, *destSet->audioStreams[i], destSocketNum);
 	}
 }
 

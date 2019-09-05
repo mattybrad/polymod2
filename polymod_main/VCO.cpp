@@ -23,6 +23,9 @@ VCO::VCO() {
 	_patchCable3 = new VirtualPatchCable(_oscTriangleSet, 0, sockets[2]->audioStreamSet, 0);
 	_patchCable4 = new VirtualPatchCable(_oscSineSet, 0, sockets[3]->audioStreamSet, 0);
 	_patchCableMod1 = new VirtualPatchCable(sockets[4]->audioStreamSet, 0, _oscSawSet, 0);
+	_patchCableMod2 = new VirtualPatchCable(sockets[4]->audioStreamSet, 0, _oscSquareSet, 0);
+	_patchCableMod3 = new VirtualPatchCable(sockets[4]->audioStreamSet, 0, _oscTriangleSet, 0);
+	_patchCableMod4 = new VirtualPatchCable(sockets[4]->audioStreamSet, 0, _oscSineSet, 0);
 }
 
 VCO::~VCO() {

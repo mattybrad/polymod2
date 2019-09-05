@@ -2,6 +2,7 @@
 #include "PhysicalModule.h"
 #include "VCO.h"
 #include "LFO.h"
+#include "VCF.h"
 #include "Master.h"
 
 PhysicalModule::PhysicalModule(int initID) {
@@ -10,6 +11,9 @@ PhysicalModule::PhysicalModule(int initID) {
   switch(id) {
     case 88:
     virtualModule = new LFO();
+    break;
+    case 99:
+    virtualModule = new VCF();
     break;
     case 136:
     virtualModule = new VCO();

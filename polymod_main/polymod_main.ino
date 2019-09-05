@@ -56,7 +56,7 @@ unsigned long thisLoop;
 void setup() {
   // init RAM reporting
   ram.initialize();
-  //while(!Serial);
+  while(!Serial);
   reporttime = millis();
 
   Serial1.begin(500000);
@@ -87,12 +87,12 @@ void setup() {
 
 void loop() {
   // report RAM usage every 2 seconds
-  /*uint32_t time = millis();
+  uint32_t time = millis();
   if((time - reporttime) > 2000) {
     reporttime = time;
     report_ram();
   };
-  ram.run();*/
+  ram.run();
 
   while(Serial1.available()) {
     byte thisByte = Serial1.read();
@@ -190,6 +190,7 @@ void updatePhysicalModuleList() {
   // temp - add dummy module
   moduleIDReadings[8] = 136;
   moduleIDReadings[3] = 88;
+  moduleIDReadings[4] = 99;
   moduleIDReadings[2] = 0;
   // skip position 0, reserved for master module
   for(int i=1; i<MAX_MODULES; i++) {
@@ -223,10 +224,13 @@ void updatePhysicalPatchCables() {
 
   // temp - adding dummy patch cable readings
   newPatchReadings[numNewPatchReadings][0] = 0;
-  newPatchReadings[numNewPatchReadings][1] = 64;
+  newPatchReadings[numNewPatchReadings][1] = 34;
   numNewPatchReadings ++;
   newPatchReadings[numNewPatchReadings][0] = 24;
-  newPatchReadings[numNewPatchReadings][1] = 68;
+  newPatchReadings[numNewPatchReadings][1] = 33;
+  numNewPatchReadings ++;
+  newPatchReadings[numNewPatchReadings][0] = 32;
+  newPatchReadings[numNewPatchReadings][1] = 64;
   numNewPatchReadings ++;
 
   int i,j;

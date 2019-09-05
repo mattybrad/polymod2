@@ -23,6 +23,9 @@ class VCO : public VirtualModule {
 		VirtualPatchCable *_patchCable3;
 		VirtualPatchCable *_patchCable4;
 		VirtualPatchCable *_patchCableMod1;
+		VirtualPatchCable *_patchCableMod2;
+		VirtualPatchCable *_patchCableMod3;
+		VirtualPatchCable *_patchCableMod4;
 };
 
 #endif

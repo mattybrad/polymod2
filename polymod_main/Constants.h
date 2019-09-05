@@ -1,4 +1,4 @@
 #define MAX_MODULES 64
-#define MAX_POLYPHONY 6
+#define MAX_POLYPHONY 2
 #define MAX_CABLES 200
 #define TEENSY_AUDIO_MEMORY 50
