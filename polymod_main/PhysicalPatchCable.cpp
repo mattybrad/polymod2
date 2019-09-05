@@ -28,7 +28,7 @@ void PhysicalPatchCable::update(VirtualSocket *updateVirtualSocketA, VirtualSock
 		isValid = true;
 		// temp, not the proper way of doing this:
 		if(virtualPatchCable == NULL) {
-			virtualPatchCable = new VirtualPatchCable(updateVirtualSocketA->audioStreamSet,updateVirtualSocketB->audioStreamSet);
+			virtualPatchCable = new VirtualPatchCable(updateVirtualSocketA->audioStreamSet,0,updateVirtualSocketB->audioStreamSet,0);
 		}
 	} else if(updateVirtualSocketB->type == OUTPUT && updateVirtualSocketA->type == INPUT) {
 		//virtualSocketSrc = updateVirtualSocketB;
@@ -36,7 +36,7 @@ void PhysicalPatchCable::update(VirtualSocket *updateVirtualSocketA, VirtualSock
 		isValid = true;
 		// temp, not the proper way of doing this:
 		if(virtualPatchCable == NULL) {
-			virtualPatchCable = new VirtualPatchCable(updateVirtualSocketB->audioStreamSet,updateVirtualSocketA->audioStreamSet);
+			virtualPatchCable = new VirtualPatchCable(updateVirtualSocketB->audioStreamSet,0,updateVirtualSocketA->audioStreamSet,0);
 		}
 	} else {
 		// cable is linking two sockets of the same type (input to input or output to output)

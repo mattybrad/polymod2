@@ -56,7 +56,7 @@ unsigned long thisLoop;
 void setup() {
   // init RAM reporting
   ram.initialize();
-  while(!Serial);
+  //while(!Serial);
   reporttime = millis();
 
   Serial1.begin(500000);
@@ -87,12 +87,12 @@ void setup() {
 
 void loop() {
   // report RAM usage every 2 seconds
-  uint32_t time = millis();
+  /*uint32_t time = millis();
   if((time - reporttime) > 2000) {
     reporttime = time;
     report_ram();
   };
-  ram.run();
+  ram.run();*/
 
   while(Serial1.available()) {
     byte thisByte = Serial1.read();
@@ -189,6 +189,7 @@ void updatePhysicalModuleList() {
   bool anyChanges = false;
   // temp - add dummy module
   moduleIDReadings[8] = 136;
+  moduleIDReadings[3] = 88;
   moduleIDReadings[2] = 0;
   // skip position 0, reserved for master module
   for(int i=1; i<MAX_MODULES; i++) {
@@ -221,9 +222,12 @@ void updatePhysicalPatchCables() {
   bool anyChanges = false;
 
   // temp - adding dummy patch cable readings
-  /*newPatchReadings[numNewPatchReadings][0] = 0;
-  newPatchReadings[numNewPatchReadings][1] = 16;
-  numNewPatchReadings ++;*/
+  newPatchReadings[numNewPatchReadings][0] = 0;
+  newPatchReadings[numNewPatchReadings][1] = 64;
+  numNewPatchReadings ++;
+  newPatchReadings[numNewPatchReadings][0] = 24;
+  newPatchReadings[numNewPatchReadings][1] = 68;
+  numNewPatchReadings ++;
 
   int i,j;
   for(i=0; i<MAX_CABLES; i++) {
@@ -288,7 +292,23 @@ void updateVirtualPatchCables() {
       }
     }
   }
+  // run recursive function to see whether each AudioStreamSet should be mono or poly
+
 }
+
+/*void setPolyMode(AudioStreamSet set) {
+  // first check if set is hardcoded as poly (e.g. MIDI to CV module output)
+  if(set.hardcodedPoly) set.poly = true;
+  // second, check if any inputs have already been found to be poly
+  for(int i=0; i<numSetInputs; i++) {
+    // if any of the inputs are poly, set.poly = true
+  }
+  // finally, if set.poly is still false, run this function on all inputs and check again
+  for(int i=0; i<numSetInputs; i++) {
+    setPolyMode(set)
+    // if any of the inputs are now poly, set.poly = true
+  }
+}*/
 
 void report_ram_stat(const char* aname, uint32_t avalue) {
   Serial.print(aname);

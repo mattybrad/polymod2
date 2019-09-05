@@ -8,7 +8,6 @@ Master::Master() {
 	for(int i=0; i<MAX_POLYPHONY; i++) {
 		if(i<4) {
 			Serial.println("Attempting to make master connection");
-			Serial.println(sockets[0]->audioStreamSet.testInt);
 			_mainConnections[i] = new AudioConnection(*sockets[0]->audioStreamSet.audioStreams[i], 0, _mixer1, i);
 			_mixer1.gain(i,1);
 		} else if(i<8) {

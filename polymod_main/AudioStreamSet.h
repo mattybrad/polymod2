@@ -8,7 +8,7 @@ class AudioStreamSet {
   public:
     AudioStreamSet();
     AudioStream *audioStreams[MAX_POLYPHONY];
-    int testInt = 0;
+    int socketNum = 0;
   private:
 
 

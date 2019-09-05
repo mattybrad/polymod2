@@ -10,10 +10,10 @@ class VCO : public VirtualModule {
 		~VCO();
 		virtual void update();
 	private:
-		AudioSynthWaveform _oscSaw[MAX_POLYPHONY];
-		AudioSynthWaveform _oscSquare[MAX_POLYPHONY];
-		AudioSynthWaveform _oscTriangle[MAX_POLYPHONY];
-		AudioSynthWaveform _oscSine[MAX_POLYPHONY];
+		AudioSynthWaveformModulated _oscSaw[MAX_POLYPHONY];
+		AudioSynthWaveformModulated _oscSquare[MAX_POLYPHONY];
+		AudioSynthWaveformModulated _oscTriangle[MAX_POLYPHONY];
+		AudioSynthWaveformModulated _oscSine[MAX_POLYPHONY];
 		AudioStreamSet _oscSawSet;
 		AudioStreamSet _oscSquareSet;
 		AudioStreamSet _oscTriangleSet;
@@ -22,6 +22,7 @@ class VCO : public VirtualModule {
 		VirtualPatchCable *_patchCable2;
 		VirtualPatchCable *_patchCable3;
 		VirtualPatchCable *_patchCable4;
+		VirtualPatchCable *_patchCableMod1;
 };
 
 #endif
