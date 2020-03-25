@@ -4,3 +4,7 @@
 VirtualModule::VirtualModule() {
   
 }
+
+VirtualSocket& VirtualModule::getSocket(int moduleSocketNumber) {
+  return sockets[moduleSocketNumber];
+}

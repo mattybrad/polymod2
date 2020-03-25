@@ -9,6 +9,7 @@ class VirtualModule {
   public:
     VirtualModule();
     VirtualSocket sockets[8];
+    VirtualSocket& getSocket(int moduleSocketNumber);
   private:
     int _id;
     

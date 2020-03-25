@@ -8,7 +8,6 @@ class PhysicalModule {
     PhysicalModule();
     byte id = 0;
     VirtualModule *virtualModule;
-    
   private:
     
 };

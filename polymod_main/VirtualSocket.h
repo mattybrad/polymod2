@@ -11,6 +11,7 @@ class VirtualSocket {
     boolean isOutput();
     AudioStream *getStream();
     int getConnectionIndex();
+    boolean isSet = false;
     
   private:
     AudioStream* _stream;

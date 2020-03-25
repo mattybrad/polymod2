@@ -13,6 +13,7 @@
 #include "PhysicalModule.h"
 #include "Master.h"
 #include "PhysicalPatchCable.h"
+#include "VirtualPatchCable.h"
 #include "Menu.h"
 #include "TestOscillator.h"
 
@@ -33,8 +34,9 @@
 
 // more definitions
 byte moduleIDReadings[MAX_MODULES];
-PhysicalPatchCable patchCableConnections[MAX_CABLES];
-PhysicalPatchCable newPatchCableConnections[MAX_CABLES];
+PhysicalPatchCable patchCableConnections[MAX_CABLES]; // main array of physically connected patch cables
+PhysicalPatchCable newPatchCableConnections[MAX_CABLES]; // most recently updated array of connected patch cables, to check for new connections/disconnections
+VirtualPatchCable virtualPatchCableConnections[MAX_CABLES];
 int newConnectionIndex = 0;
 PhysicalModule physicalModules[MAX_MODULES]; // all physical modules
 AudioControlSGTL5000 sgtl; // teensy audio board chip
@@ -77,7 +79,7 @@ void setup() {
 
   // init test modules
   physicalModules[0].virtualModule = new Master();
-  physicalModules[1].virtualModule = new TestOscillator();
+  physicalModules[8].virtualModule = new TestOscillator();
 }
 
 int a,b,c,d,e,f; // loop index variables
@@ -101,18 +103,6 @@ void loop() {
         if(nextPosition>6) {
           nextPosition=0;
           addNewPatchCableConnection((currentCommand[1]<<6)+(currentCommand[2]<<3)+currentCommand[3],(currentCommand[4]<<6)+(currentCommand[5]<<3)+currentCommand[6]);
-          /*Serial.print("PATCH CONNECTION: ");
-          Serial.print(currentCommand[1]);
-          Serial.print("-");
-          Serial.print(currentCommand[2]);
-          Serial.print("-");
-          Serial.print(currentCommand[3]);
-          Serial.print(" to ");
-          Serial.print(currentCommand[4]);
-          Serial.print("-");
-          Serial.print(currentCommand[5]);
-          Serial.print("-");
-          Serial.println(currentCommand[6]);*/
         }
         break;
 
@@ -209,6 +199,7 @@ void updatePatchCableConnections() {
           patchCableConnections[j].socket1 = newPatchCableConnections[i].socket1;
           patchCableConnections[j].socket2 = newPatchCableConnections[i].socket2;
           spaceFound = true;
+          createVirtualConnectionFromPhysical(j);
           Serial.print("ADDED ");
           Serial.print(patchCableConnections[j].socket1);
           Serial.print("->");
@@ -218,5 +209,19 @@ void updatePatchCableConnections() {
     }
   }
   newConnectionIndex = 0;
+}
+
+void createVirtualConnectionFromPhysical(int i) {
+  int socket1Module = patchCableConnections[i].socket1>>3;
+  int socket2Module = patchCableConnections[i].socket2>>3;
+  int socket1Pin = patchCableConnections[i].socket1 - (socket1Module<<3);
+  int socket2Pin = patchCableConnections[i].socket2 - (socket2Module<<3);
+  Serial.println(socket1Module);
+  Serial.println(socket1Pin);
+  Serial.println(socket2Module);
+  Serial.println(socket2Pin);
+  VirtualSocket& socket1 = physicalModules[socket1Module].virtualModule->getSocket(socket1Pin);
+  VirtualSocket& socket2 = physicalModules[socket1Module].virtualModule->getSocket(socket2Pin);
+  virtualPatchCableConnections[i].initialise(socket1, socket2);
 }
 

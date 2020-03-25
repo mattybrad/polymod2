@@ -9,12 +9,16 @@ VirtualSocket::VirtualSocket() {
 }
 
 void VirtualSocket::setOutput(AudioStream &stream, int connectionIndex) {
+  Serial.println("SET OUTPUT");
+  isSet = true;
   _socketType = OUTPUT_SOCKET;
   _stream = &stream;
   _connectionIndex = connectionIndex;
 }
 
 void VirtualSocket::setInput(AudioStream& stream, int connectionIndex) {
+  Serial.println("SET INPUT");
+  isSet = true;
   _socketType = INPUT_SOCKET;
   _stream = &stream;
   _connectionIndex = connectionIndex;
