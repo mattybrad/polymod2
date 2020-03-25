@@ -30,7 +30,7 @@ void setup() {
   pinMode(readConnections, INPUT_PULLUP);
   SPI.begin();
 
-  // where did all this ADC stuff come from? credit the author!
+  // code adapted from http://www.glennsweeney.com/tutorials/interrupt-driven-analog-conversion-with-an-atmega328p
 
   // clear ADLAR in ADMUX (0x7C) to right-adjust the result
   // ADCL will contain lower 8 bits, ADCH upper 2 (in last two bits)
@@ -45,7 +45,6 @@ void setup() {
   ADMUX &= B11110000;
   
   // Set MUX3..0 in ADMUX (0x7C) to read from AD8 (Internal temp)
-  // Do not set above 15! You will overrun other parts of ADMUX. A full
   // list of possible inputs is available in Table 24-4 of the ATMega328
   // datasheet
   ADMUX |= 0;
@@ -85,7 +84,7 @@ void setup() {
 unsigned long lastStart = 0;
 unsigned long innerStart = 0;
 unsigned long innerEnd = 0;
-int numGroups = 8;
+int numGroups = 2;
 byte cyclesSinceRead[8*8*8];
 bool firstLoop = true;
 
@@ -165,7 +164,7 @@ void loop() {
                 // test dummy data, send module ID data
                 Serial.write(3); // ID message
                 Serial.write(0); // group number
-                Serial.write(0); // module number
+                Serial.write(2); // module number
                 Serial.write(136); // module ID
               }
 
@@ -205,7 +204,7 @@ void loop() {
                   doDelay = !updateAnalogReading(d,e,f,analogVal>>2);
                 }
               }
-              if(doDelay) delayMicroseconds(6);
+              if(doDelay) delayMicroseconds(10); // was 6, but was getting errors
 
               if(socket1 < socket2) {
                 if(!bitRead(PINC,2)) {

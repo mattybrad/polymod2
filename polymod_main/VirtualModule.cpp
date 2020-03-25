@@ -2,7 +2,7 @@
 #include "VirtualModule.h"
 
 VirtualModule::VirtualModule() {
-  
+
 }
 
 VirtualSocket& VirtualModule::getSocket(int moduleSocketNumber) {

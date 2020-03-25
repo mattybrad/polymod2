@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "VirtualSocket.h"
 
+<<<<<<< HEAD
 #define OUTPUT_SOCKET 0
 #define INPUT_SOCKET 1
 
@@ -36,3 +37,13 @@ int VirtualSocket::getConnectionIndex() {
   return _connectionIndex;
 }
 
+=======
+VirtualSocket::VirtualSocket(int initType) {
+	Serial.println("New virtual socket created");
+	type = initType;
+	for(int i=0; i<MAX_POLYPHONY; i++) {
+		audioStreamSet.audioStreams[i] = &_amplifiers[i];
+		_amplifiers[i].gain(1);
+	}
+}
+>>>>>>> 47bf06dffeea8e06460e3808825af276b3af3bc4

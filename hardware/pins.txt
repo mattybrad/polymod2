@@ -13,8 +13,8 @@ Arduino pins:
 11	MOSI to shift registers data in
 12	
 13	SCK to shift registers SCLK
-A0	read module ID
-A1	read analog sensors
+A0	read analog sensors
+A1	read module ID
 A2	read patch connections
 A3	read/write(?) aux channel
 A4	
@@ -22,32 +22,50 @@ A5
 
 NB deliberately grouping ports in this way for fast port manipulation, see https://www.arduino.cc/en/Reference/PortManipulation
 
+Teensy pins required:
+Serial in (from Arduino)
+Serial out (to Arduino)
+Menu inc button
+Menu dec button
+Menu confirm button
+Menu cancel button
+I2C pins x2 (used for audio)
+Audio pins x5
+SPI pins x3 (used for SD + memory, if either in use)
+SD select (if in use)
+Memory select (if in use)
+Analog CV inputs x2(or more I guess)
+OLED select
+MIDI input
+
+Teensy 4 has now been released so pinout is confirmed, and it looks like it should work fine. Currently have 2 pins spare, could increase that to 3 or 4 by getting omitting extra RAM (can't be bothered with the fiddly soldering, and Teensy 4.0 should have loads more RAM anyway), and possibly by condensing the menu buttons into 3 pins using a shift register (maybe a good idea anyway - could then add more buttons if needed). Extra pins could be used for a PWM CV/audio output (requires two pins for the version in the official library) or maybe two lower-quality single-pin PWM CV outputs. Teensy 4 has no DAC, hence need for PWM CV outs. Could also add a 3rd/4th CV input if really wanting to max out the pins.
+
 Teensy pins:
-	3.6	4.0	FUNCTION
-0	RX1	RX1	read serial from arduino
-1	TX1	TX1	write serial to arduino
-2			read menu inc button
-3	SCL2		read menu dec button
-4	SDA2		read menu confirm button
-5			read menu cancel button
-6		RX2	audio board
-7	RX3	TX2	audio board
-8	TX3
-9	RX2		audio board			
-10	TX2		audio board
-11			audio board
-12			audio board
-13			audio board
-14/A0		TX3	audio board
-15/A1		RX3	
-16/A2		RX4	CV in 1 (AudioInputAnalogStereo)
-17/A3		TX4	CV in 2	(AudioInputAnalogStereo)
-18/A4	SDA0		audio board, OLED (shared I2C)
-19/A5	SCL0		audio board, OLED (shared I2C)
-20/A6		TX5
-21/A7		RX5
-22/A8			audio board
-23/A9			audio board
+					3.X													4.0
+0					Serial in (from Arduino)		Serial in (from Arduino)
+1					Serial out (to Arduino)			Serial out (to Arduino)
+2					Menu inc button							Menu inc button
+3					Menu dec button							Menu dec button
+4					Menu confirm button					Menu confirm button
+5					Menu cancel button					Menu cancel button
+6					Memory select (optional?)		Memory select (optional?)
+7					SPI MOSI										Audio TX
+8					OLED select									Audio RX
+9					Audio BCLK									OLED select
+10				SD card select							SD card select
+11				Audio MCLK									SPI MOSI
+12				SPI MISO										SPI MISO
+13				Audio RX										SPI SCK
+14/A0			SPI SCK
+15/A1																	MIDI input
+16/A2			CV input										CV input
+17/A3			CV input										CV input
+18/A4			I2C													I2C
+19/A5			I2C													I2C
+20/A6																	Audio LRCLK
+21/A7																	Audio BCLK
+22/A8			Audio TX
+23/A9			Audio LRCLK									Audio MCLK
 -------------------------------------------
 24
 25
@@ -56,22 +74,15 @@ Teensy pins:
 28
 29
 30
-31/A12	RX4		read MIDI input
-32/A13	TX4
-33/A14	TX5
-34/A15	RX5
+31/A12		MIDI input
+32/A13
+33/A14
+34/A15
 35/A16
 36/A17
-37/A18	SCL1		
-38/A19	SDA1		
+37/A18	
+38/A19	
 39/A20
-A21/DAC0		CV out 1 (AudioOutputAnalogStereo)
-A22/DAC1		CV out 2 (AudioOutputAnalogStereo)
+A21/DAC0	CV out 1 (AudioOutputAnalogStereo)
+A22/DAC1	CV out 2 (AudioOutputAnalogStereo)
 
-NB Teensy 4.0 pins just there for future reference, pretty unlikely to be able to make a fully backward compatible single Teensy socket, but could have separate T4.0 and T3.6 sockets once pins (particularly for audio board, if it works?) are known - mainly trying to keep overall pin usage down so that T4.0 is possible.
-
-Current layout rules out Teensy 3.1/3.2, at least with full features. Problems would include CV out 2 (only one DAC) and MIDI input (all available serial ports used by audio board). Could maybe merge MIDI and Arduino serial lines, basically transmit all messages as MIDI sys-ex, but it's a nasty hack, and besides, why use sub-3.6 Teensy? Cost of whole project makes difference between 3.1 and 3.6 negligible in the scheme of things.
-
-Potential problems with Teensy 4.0: MIDI should hopefully be fine given that there are more serial ports than 3.2, but still possible that they all clash with audio pins. CV out could be difficult given lack of DAC on T4, but a pair of MCP4921 chips might do the job, or a PT8211, or just try PWM (supported by audio library and might be fine for CV frequencies).
-
-Alternatively, just use double audio shields for four audio ins and outs, and allow any to be used for audio or CV? Bit of a faff, though - involves some minging de-soldering.

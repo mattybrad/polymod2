@@ -8,14 +8,21 @@
 // other libraries
 #include <Bounce2.h>
 
-// include menu, base module, master module and patch cable classes
-#include "VirtualModule.h"
+// monitor RAM
+#include <cstdint>
+#include "RamMonitor.h"
+RamMonitor ram;
+uint32_t reporttime;
+
+// include classes
 #include "PhysicalModule.h"
 #include "Master.h"
 #include "PhysicalPatchCable.h"
 #include "VirtualPatchCable.h"
 #include "Menu.h"
-#include "TestOscillator.h"
+
+// include Constants
+#include "Constants.h"
 
 // include specific modules - this part can be generated automatically
 // AUTO GENERATED INCLUDE STATEMENTS GOES HERE
@@ -40,13 +47,7 @@ VirtualPatchCable virtualPatchCableConnections[MAX_CABLES];
 int newConnectionIndex = 0;
 PhysicalModule physicalModules[MAX_MODULES]; // all physical modules
 AudioControlSGTL5000 sgtl; // teensy audio board chip
-AudioOutputI2S mainOutput; // teensy audio board output
 Menu menu = Menu();
-
-// test audio board
-AudioSynthWaveformSine   sine1;
-AudioConnection          patchCord1(sine1, 0, mainOutput, 0);
-AudioConnection          patchCord2(sine1, 0, mainOutput, 1);
 
 // buttons
 Bounce incButton = Bounce();
@@ -58,8 +59,15 @@ Bounce noButton = Bounce();
 byte nextPosition = 0;
 byte currentCommand[8];
 float tempFreq = 100.0;
+unsigned long lastLoop;
+unsigned long thisLoop;
 
 void setup() {
+  // init RAM reporting
+  ram.initialize();
+  while(!Serial);
+  reporttime = millis();
+
   Serial1.begin(500000);
   Serial.begin(500000);
   incButton.attach(INC_BUTTON_PIN,INPUT_PULLUP);
@@ -71,21 +79,25 @@ void setup() {
   yesButton.interval(25);
   noButton.interval(25);
 
-  // test audio board
-  AudioMemory(15);
+  // init audio board
+  AudioMemory(50);
   sgtl.enable();
-  sgtl.volume(0.5);
-  sine1.amplitude(0.5);
+  sgtl.volume(0.3);
 
   // init test modules
   physicalModules[0].virtualModule = new Master();
   physicalModules[8].virtualModule = new TestOscillator();
 }
 
-int a,b,c,d,e,f; // loop index variables
 void loop() {
-  sine1.frequency(tempFreq);
-  
+  // report RAM usage every 2 seconds
+  uint32_t time = millis();
+  if((time - reporttime) > 2000) {
+    reporttime = time;
+    //report_ram();
+  };
+  ram.run();
+
   while(Serial1.available()) {
     byte thisByte = Serial1.read();
     if(nextPosition==0) {
@@ -107,12 +119,19 @@ void loop() {
         break;
 
         case 2:
-        // analog reading
+        // analog reading (currently 8-bit, upgrade to 10-bit at some point)
         nextPosition++;
         if(nextPosition>4) {
           nextPosition=0;
-          tempFreq = 100.0 + 10*currentCommand[4];
-          
+          /*Serial.print("ANALOG READING: ");
+          Serial.print(currentCommand[1]);
+          Serial.print("-");
+          Serial.print(currentCommand[2]);
+          Serial.print("-");
+          Serial.print(currentCommand[3]);
+          Serial.print(": ");
+          Serial.println(currentCommand[4]);*/
+          if(currentCommand[1]==0&&currentCommand[2]==0&&currentCommand[3]==0) tempFreq = 100.0 + 10*currentCommand[4];
         }
         break;
 
@@ -122,15 +141,19 @@ void loop() {
         if(nextPosition>3) {
           nextPosition=0;
           moduleIDReadings[(currentCommand[1]<<3)+currentCommand[2]] = currentCommand[3];
+          /*Serial.print("MODULE ID READING: ");
+          Serial.print(currentCommand[1]);
+          Serial.print("-");
+          Serial.print(currentCommand[2]);
+          Serial.print(": ");
+          Serial.println(currentCommand[3]);*/
         }
         break;
       }
     }
   }
 
-  updatePhysicalModuleList();
-
-  // menu button update code, here for now but will move inside loop at some point
+  // menu button update code (probably not the best place for this, remnant from earlier code, fix later)
   incButton.update();
   decButton.update();
   yesButton.update();
@@ -147,18 +170,105 @@ void loop() {
 }
 
 void updatePhysicalModuleList() {
-  for(int i=0; i<MAX_MODULES; i++) {
-    if(moduleIDReadings[i] != physicalModules[i].id) {
-      // update physical module instance
-      physicalModules[i].id = moduleIDReadings[i];
+  bool anyChanges = false;
+  // temp - add dummy module
+  moduleIDReadings[8] = 136;
+  moduleIDReadings[3] = 88;
+  moduleIDReadings[4] = 99;
+  moduleIDReadings[2] = 0;
+  // skip position 0, reserved for master module
+  for(int i=1; i<MAX_MODULES; i++) {
+    if(moduleIDReadings[i] == 0) {
+      // no physical module present
+      if(physicalModules[i]==NULL) {
+        // no change
+      } else {
+        // module has been removed - destroy physical module object
+        delete physicalModules[i];
+        physicalModules[i]=NULL;
+        anyChanges= true;
+      }
+    } else {
+      // physical module present
+      if(physicalModules[i]->id==moduleIDReadings[i]) {
+        // no change
+      } else {
+        // module has been added - create new physical module object
+        physicalModules[i] = new PhysicalModule(moduleIDReadings[i]);
+        anyChanges = true;
+      }
+    }
+  }
+  if(anyChanges) updateVirtualPatchCables(); // possibly unnecessary? but shouldn't break anything
+}
 
-      // kill previous virtual modules
+bool cableAlreadyExists[MAX_CABLES];
+void updatePhysicalPatchCables() {
+  bool anyChanges = false;
 
-      // check user module mappings
+  // temp - adding dummy patch cable readings
+  newPatchReadings[numNewPatchReadings][0] = 0;
+  newPatchReadings[numNewPatchReadings][1] = 34;
+  numNewPatchReadings ++;
+  newPatchReadings[numNewPatchReadings][0] = 24;
+  newPatchReadings[numNewPatchReadings][1] = 33;
+  numNewPatchReadings ++;
+  newPatchReadings[numNewPatchReadings][0] = 32;
+  newPatchReadings[numNewPatchReadings][1] = 64;
+  numNewPatchReadings ++;
+
+  int i,j;
+  for(i=0; i<MAX_CABLES; i++) {
+    cableAlreadyExists[i] = false;
+  }
+  bool cableFound;
+  for(i=0; i<MAX_CABLES; i++) {
+    if(physicalPatchCables[i] != NULL) {
+      cableFound = false;
+      for(j=0; j<numNewPatchReadings; j++) {
+        if(newPatchReadings[j][0]==physicalPatchCables[i]->physicalSocketA&&newPatchReadings[j][1]==physicalPatchCables[i]->physicalSocketB) {
+          cableFound = true;
+          cableAlreadyExists[j] = true;
+        }
+      }
+      if(!cableFound) {
+        // no reading for this cable any more - remove from list
+        delete physicalPatchCables[i];
+        physicalPatchCables[i] = NULL;
+        anyChanges = true;
+      }
+    }
+  }
+  for(i=0; i<numNewPatchReadings; i++) {
+    if(!cableAlreadyExists[i]) {
+      // reading is not found in list - add new cable to list
+      // find free space in list
+      bool foundSpace = false;
+      for(j=0; j<MAX_CABLES&&!foundSpace; j++) {
+        if(physicalPatchCables[j] == NULL) {
+          physicalPatchCables[j] = new PhysicalPatchCable(newPatchReadings[i][0], newPatchReadings[i][1]);
+          foundSpace = true;
+        }
+      }
+      if(foundSpace) {
+        anyChanges = true;
+      }
+    }
+  }
+  if(anyChanges) {
+    updateVirtualPatchCables();
+  }
+}
 
       // initialise new virtual modules
       //if(physicalModules[i].id==136) physicalModules[i].virtualModule = new TestOscillator();
     }
+  }
+  // run recursive function to see whether each AudioStreamSet should be mono or poly
+  int checkNum = 0;
+  while(checkNum < 2) {
+    checkPolyStatus(&physicalModules[0]->virtualModule->sockets[0]->audioStreamSet, checkNum);
+    checkNum ++;
   }
 }
 
@@ -224,4 +334,3 @@ void createVirtualConnectionFromPhysical(int i) {
   VirtualSocket& socket2 = physicalModules[socket1Module].virtualModule->getSocket(socket2Pin);
   virtualPatchCableConnections[i].initialise(socket1, socket2);
 }
-
