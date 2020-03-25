@@ -8,7 +8,7 @@
 
 class VirtualPatchCable {
   public:
-    VirtualPatchCable(AudioStreamSet initSourceSet, int sourceSocketNum, AudioStreamSet initDestSet, int destSocketNum);
+    VirtualPatchCable(AudioStreamSet sourceSet, int sourceSocketNum, AudioStreamSet destSet, int destSocketNum);
     ~VirtualPatchCable();
     AudioStreamSet *sourceSet;
     AudioStreamSet *destSet;

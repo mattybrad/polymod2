@@ -19,7 +19,6 @@ class Master : public VirtualModule {
 		AudioConnection *_mixer2Connection;
 		AudioConnection *_finalConnection1;
 		AudioConnection *_finalConnection2;
-		AudioSynthWaveform _testOsc;
 };
 
 #endif

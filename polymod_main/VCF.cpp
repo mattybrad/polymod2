@@ -8,6 +8,12 @@ VCF::VCF() {
 	sockets[2] = new VirtualSocket(OUTPUT); // lowpass out
 	sockets[3] = new VirtualSocket(OUTPUT); // bandpass out
 	sockets[4] = new VirtualSocket(OUTPUT); // highpass out
+	sockets[0]->audioStreamSet.ref = 'F';
+	sockets[1]->audioStreamSet.ref = 'G';
+	sockets[2]->audioStreamSet.ref = 'B';
+	sockets[3]->audioStreamSet.ref = 'C';
+	sockets[4]->audioStreamSet.ref = 'D';
+	_filterSet.ref = 'E';
 	for(int i=0; i<MAX_POLYPHONY; i++) {
 		_filterSet.audioStreams[i] = &_filter[i];
 		_filter[i].frequency(100);

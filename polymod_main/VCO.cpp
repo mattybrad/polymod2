@@ -8,6 +8,15 @@ VCO::VCO() {
 	sockets[2] = new VirtualSocket(OUTPUT); // triangle
 	sockets[3] = new VirtualSocket(OUTPUT); // sine
 	sockets[4] = new VirtualSocket(INPUT); // freq mod 1
+	sockets[0]->audioStreamSet.ref = 'H';
+	sockets[1]->audioStreamSet.ref = 'I';
+	sockets[2]->audioStreamSet.ref = 'J';
+	sockets[3]->audioStreamSet.ref = 'K';
+	sockets[4]->audioStreamSet.ref = 'R';
+	_oscSawSet.ref = 'M';
+	_oscSquareSet.ref = 'N';
+	_oscTriangleSet.ref = 'O';
+	_oscSineSet.ref = 'P';
 	for(int i=0; i<MAX_POLYPHONY; i++) {
 		_oscSawSet.audioStreams[i] = &_oscSaw[i];
 		_oscSquareSet.audioStreams[i] = &_oscSquare[i];

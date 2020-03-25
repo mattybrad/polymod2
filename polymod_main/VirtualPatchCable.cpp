@@ -1,12 +1,14 @@
 #include "Arduino.h"
 #include "VirtualPatchCable.h"
 
-VirtualPatchCable::VirtualPatchCable(AudioStreamSet initSourceSet, int sourceSocketNum, AudioStreamSet initDestSet, int destSocketNum) {
-	sourceSet = &initSourceSet;
-	destSet = &initDestSet;
+VirtualPatchCable::VirtualPatchCable(AudioStreamSet sourceSet, int sourceSocketNum, AudioStreamSet destSet, int destSocketNum) {
 	Serial.println("Added virtual patch cable");
+	destSet.addInput(&sourceSet);
+	Serial.print(sourceSet.ref);
+	Serial.print(" to ");
+	Serial.println(destSet.ref);
 	for(int i=0; i<MAX_POLYPHONY; i++) {
-		audioConnections[i] = new AudioConnection(*sourceSet->audioStreams[i], sourceSocketNum, *destSet->audioStreams[i], destSocketNum);
+		audioConnections[i] = new AudioConnection(*sourceSet.audioStreams[i], sourceSocketNum, *destSet.audioStreams[i], destSocketNum);
 	}
 }
 

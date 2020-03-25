@@ -90,7 +90,7 @@ void loop() {
   uint32_t time = millis();
   if((time - reporttime) > 2000) {
     reporttime = time;
-    report_ram();
+    //report_ram();
   };
   ram.run();
 
@@ -297,21 +297,46 @@ void updateVirtualPatchCables() {
     }
   }
   // run recursive function to see whether each AudioStreamSet should be mono or poly
-
+  int checkNum = 0;
+  while(checkNum < 2) {
+    checkPolyStatus(&physicalModules[0]->virtualModule->sockets[0]->audioStreamSet, checkNum);
+    checkNum ++;
+  }
 }
 
-void setPolyMode(AudioStreamSet set) {
-  // first check if set is hardcoded as poly (e.g. MIDI to CV module output)
-  if(set.hardcodedPoly) set.poly = true;
-  // second, check if any inputs have already been found to be poly
-  for(int i=0; i<numSetInputs; i++) {
-    // if any of the inputs are poly, set.poly = true
+void checkPolyStatus(AudioStreamSet *thisSet, int checkNum) {
+  Serial.println("Checking poly status...");
+  thisSet->polyStatusCheckNum ++;
+  if(thisSet->hardcodedPoly) {
+    thisSet->isPoly = true;
+    thisSet->polyStatusConfirmed = true;
   }
-  // finally, if set.poly is still false, run this function on all inputs and check again
-  for(int i=0; i<numSetInputs; i++) {
-    setPolyMode(set)
-    // if any of the inputs are now poly, set.poly = true
+  bool allMono = true;
+  bool allInputsConfirmed = true;
+  Serial.print("Num inputs for ");
+  Serial.print(thisSet->ref);
+  Serial.print(": ");
+  Serial.println(thisSet->numInputs);
+  for(int i=0;i<thisSet->numInputs;i++) {
+    Serial.print("Checking input: ");
+    Serial.println(thisSet->inputs[i]->ref);
+    if(thisSet->inputs[i]->polyStatusCheckNum==checkNum) {
+      checkPolyStatus(thisSet->inputs[i], checkNum);
+    }
+    if(thisSet->inputs[i]->isPoly) allMono = false;
+    if(!thisSet->inputs[i]->polyStatusConfirmed) allInputsConfirmed = false;
   }
+  if(!allMono) {
+    thisSet->isPoly = true;
+    thisSet->polyStatusConfirmed = true;
+  }
+  if(allInputsConfirmed) {
+    thisSet->polyStatusConfirmed = true;
+  }
+  Serial.print("Poly status for ");
+  Serial.print(thisSet->ref);
+  Serial.print(": ");
+  Serial.println(thisSet->isPoly?"POLY":"MONO");
 }
 
 void report_ram_stat(const char* aname, uint32_t avalue) {

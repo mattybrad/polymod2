@@ -23,16 +23,12 @@ void PhysicalPatchCable::update(VirtualSocket *updateVirtualSocketA, VirtualSock
 		// at least one of the sockets doesn't exist - invalid patch cable
 		isValid = false;
 	} else if(updateVirtualSocketA->type == OUTPUT && updateVirtualSocketB->type == INPUT) {
-		//virtualSocketSrc = updateVirtualSocketA;
-		//virtualSocketDest = updateVirtualSocketB;
 		isValid = true;
 		// temp, not the proper way of doing this:
 		if(virtualPatchCable == NULL) {
 			virtualPatchCable = new VirtualPatchCable(updateVirtualSocketA->audioStreamSet,0,updateVirtualSocketB->audioStreamSet,0);
 		}
 	} else if(updateVirtualSocketB->type == OUTPUT && updateVirtualSocketA->type == INPUT) {
-		//virtualSocketSrc = updateVirtualSocketB;
-		//virtualSocketDest = updateVirtualSocketA;
 		isValid = true;
 		// temp, not the proper way of doing this:
 		if(virtualPatchCable == NULL) {

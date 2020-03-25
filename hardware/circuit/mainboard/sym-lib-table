@@ -1,3 +1,4 @@
 (sym_lib_table
   (lib (name teensy)(type Legacy)(uri C:/projects/polymod2/hardware/kicad/polymod2/libraries/teensy_library-master/teensy.lib)(options "")(descr ""))
+  (lib (name mainboard-rescue)(type Legacy)(uri ${KIPRJMOD}/mainboard-rescue.lib)(options "")(descr ""))
 )
