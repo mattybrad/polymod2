@@ -1,0 +1,15 @@
+Main board
+
+Serial out
+Serial in (multiplexed)
+Three pins to address mux
+
+Module (example)
+
+Serial out
+Serial in
+Three software serial ins, three outs
+Two buttons (digital inputs)
+Four leds (digital outputs)
+Six pots (analog inputs)
+
