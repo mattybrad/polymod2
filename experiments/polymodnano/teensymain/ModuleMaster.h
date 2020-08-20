@@ -12,12 +12,12 @@ class ModuleMaster : public Module {
   private:
     AudioMixer4 _mixer;
     AudioOutputI2S _out;
-    AudioConnection *pc1;
-    AudioConnection *pc2;
-    AudioConnection *pc3;
-    AudioConnection *pc4;
-    AudioConnection *finalConnectionL;
-    AudioConnection *finalConnectionR;
+    AudioConnection *_pc1;
+    AudioConnection *_pc2;
+    AudioConnection *_pc3;
+    AudioConnection *_pc4;
+    AudioConnection *_finalConnectionL;
+    AudioConnection *_finalConnectionR;
 };
 
 #endif

@@ -10,10 +10,11 @@
 class Module {
   public:
     Module();
-    AnalogInput _analogInputs[8];
-    SocketInput *_socketInputs[8];
-    SocketOutput *_socketOutputs[8];
+    AnalogInput *analogInputs[8];
+    SocketInput *socketInputs[8];
+    SocketOutput *socketOutputs[8];
   private:
+  
 
 };
 

@@ -11,9 +11,13 @@ class ModuleVCO : public Module {
     virtual void update();
   private:
     AudioSynthWaveformModulated _oscSaw[MAX_POLYPHONY];
+    AudioMixer4 _modMixer[MAX_POLYPHONY];
     AudioStreamSet _oscSawSet;
+    AudioStreamSet _modMixerSet;
     VirtualPatchCable *_patchCable1;
     VirtualPatchCable *_patchCable2;
+    VirtualPatchCable *_analogCable;
+    VirtualPatchCable *_modCable;
 };
 
 #endif

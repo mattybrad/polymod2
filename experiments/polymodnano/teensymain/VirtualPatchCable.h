@@ -5,6 +5,7 @@
 #include "SocketInput.h"
 #include "SocketOutput.h"
 #include "Constants.h"
+#include <AudioStream.h>
 #include <Audio.h>
 
 class VirtualPatchCable {
