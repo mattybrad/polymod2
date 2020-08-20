@@ -3,7 +3,7 @@
 
 LFO::LFO() {
 	Serial.println("New virtual LFO module created");
-	sockets[0] = new VirtualSocket(OUTPUT);
+	sockets[0] = new VirtualSocket();
 	sockets[0]->audioStreamSet.ref = 'L';
 	_oscSineSet.ref = 'Q';
 	for(int i=0; i<MAX_POLYPHONY; i++) {

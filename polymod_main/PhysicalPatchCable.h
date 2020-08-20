@@ -1,17 +1,6 @@
 #ifndef PhysicalPatchCable_h
 #define PhysicalPatchCable_h
 #include "Arduino.h"
-<<<<<<< HEAD
-
-class PhysicalPatchCable {
-  public:
-    PhysicalPatchCable();
-    boolean inUse = false;
-    int socket1;
-    int socket2;
-  private:
-    
-=======
 #include "VirtualPatchCable.h"
 
 class PhysicalPatchCable {
@@ -25,7 +14,6 @@ class PhysicalPatchCable {
     VirtualSocket *virtualSocketDest = NULL;
     VirtualPatchCable *virtualPatchCable = NULL;
     bool isValid = false;
->>>>>>> 47bf06dffeea8e06460e3808825af276b3af3bc4
 };
 
 #endif

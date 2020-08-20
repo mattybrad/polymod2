@@ -2,7 +2,8 @@
 #define VirtualPatchCable_h
 #include "Arduino.h"
 #include "AudioStreamSet.h"
-#include "VirtualSocket.h"
+#include "SocketInput.h"
+#include "SocketOutput.h"
 #include "Constants.h"
 #include <Audio.h>
 

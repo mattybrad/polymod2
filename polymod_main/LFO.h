@@ -3,6 +3,9 @@
 #include "Arduino.h"
 #include "VirtualModule.h"
 #include "Constants.h"
+#include "AudioStreamSet.h"
+#include "VirtualPatchCable.h"
+#include "VirtualSocket.h"
 
 class LFO : public VirtualModule {
 	public:
