@@ -8,6 +8,7 @@ class SocketInput {
   public:
     SocketInput();
     AudioStreamSet audioStreamSet;
+    int patchCableNum = -1;
   private:
     AudioAmplifier _gain[MAX_POLYPHONY];
 };
