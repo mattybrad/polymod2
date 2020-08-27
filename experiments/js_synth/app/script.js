@@ -3,8 +3,10 @@ console.log("hello!");
 document.getElementById("mainConsole").innerHTML = "This is a test";
 
 var actx = new AudioContext();
+console.log(actx.state);
 window.onclick = function() {
   actx.resume();
+  console.log("resume");
 }
 var polyphony = 3;
 
@@ -20,11 +22,13 @@ class ModuleMaster extends Module {
   constructor() {
     super();
     this.socketInputs[0] = new SocketInput("main");
-    var tempOsc = actx.createOscillator();
-    tempOsc.type = "sawtooth";
-    tempOsc.frequency.value = 110;
-    tempOsc.connect(actx.destination);
-    tempOsc.start();
+    var masterGainSet = new NodeSet();
+    for(var i=0; i<polyphony; i++) {
+      var g = masterGainSet.nodes[i] = actx.createGain();
+      g.connect(actx.destination);
+    }
+    masterGainSet.nodes[0].connect(actx.destination);
+    this.testSet = masterGainSet;
   }
 }
 
@@ -38,9 +42,10 @@ class ModuleVCO extends Module {
     for(var i=0; i<polyphony; i++) {
       var o = oscSawSet.nodes[i] = actx.createOscillator();
       o.type = "sawtooth";
-      o.frequency.value = 110 + (i * 30);
+      o.frequency.value = 110 + (i * 30 + 50 * Math.random());
       o.start();
     }
+    this.testSet = oscSawSet;
   }
 }
 
@@ -66,9 +71,17 @@ class NodeSet {
   constructor() {
     this.nodes = [];
   }
-  connect(outParam, nodeSet, inParam) {
+  connect(nodeSet) {
     for(var i=0; i<polyphony; i++) {
-      this.nodes[i][outParam].connect(nodeSet.nodes[i][inParam]);
+      this.nodes[i].connect(nodeSet.nodes[i]);
+    }
+  }
+  disconnect(nodeSet) {
+    for(var i=0; i<polyphony; i++) {
+      this.nodes[i].disconnect(nodeSet.nodes[i]);
     }
   }
 }
+
+var v = new ModuleVCO();
+var m = new ModuleMaster();
