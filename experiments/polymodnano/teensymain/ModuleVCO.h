@@ -16,6 +16,7 @@ class ModuleVCO : public Module {
     AudioStreamSet _modMixerSet;
     VirtualPatchCable *_patchCable1;
     VirtualPatchCable *_patchCable2;
+    VirtualPatchCable *_patchCable3;
     VirtualPatchCable *_analogCable;
     VirtualPatchCable *_modCable;
 };

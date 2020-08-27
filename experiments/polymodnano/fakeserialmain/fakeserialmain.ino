@@ -37,7 +37,7 @@ void loop()
   tickNum++;
 
   if(tickNum == 32) {
-    for(byte n=1; n<=2; n++) {
+    for(byte n=1; n<=3; n++) {
       Wire.requestFrom(n,18);
       byte x = 0;
       byte numNewConnected = 0;

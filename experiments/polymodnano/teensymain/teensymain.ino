@@ -8,6 +8,7 @@
 // modules
 #include "ModuleVCO.h"
 #include "ModuleLFO.h"
+//#include "ModuleMIDI.h"
 #include "ModuleMaster.h"
 
 AudioControlSGTL5000 sgtl; // teensy audio board chip
@@ -17,19 +18,17 @@ VirtualPatchCable *vpc[8];
 int patchIndex = 0; // temp
 
 void setup() {
+  while(!Serial);
   Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
 
   // init audio board
   AudioMemory(50);
   sgtl.enable();
-  sgtl.volume(0.3);
-
+  sgtl.volume(0);
   m[0] = new ModuleVCO();
   m[1] = new ModuleLFO();
   m[2] = new ModuleMaster();
-
-  //vpc1 = new VirtualPatchCable(m[0]->socketOutputs[0]->audioStreamSet,0,m[2]->socketInputs[0]->audioStreamSet,0);
-  //vpc2 = new VirtualPatchCable(m[1]->socketOutputs[0]->audioStreamSet,0,m[0]->socketInputs[0]->audioStreamSet,0);
+  //m[3] = new ModuleMIDI();
 }
 
 bool added1 = false;
@@ -85,4 +84,16 @@ void loop() {
       }
     }
   }
+  byte pinNum = 0;
+  for(byte i=0; i<8; i++) {
+    if(m[i]!=NULL) {
+      for(byte j=0; j<8; j++) {
+        if(m[i]->analogInputs[j]!=NULL) {
+          //m[i]->analogInputs[j]->setValue(analogRead(pinNum));
+          pinNum ++;
+        }
+      }
+    }
+  }
+  Serial.println(AudioMemoryUsageMax());
 }
