@@ -1,5 +1,3 @@
-console.log("hello!");
-
 document.getElementById("mainConsole").innerHTML = "This is a test";
 
 var actx = new AudioContext();
@@ -23,6 +21,7 @@ function sendMessage(msg) {
       var moduleNum = parseInt(splitMsg[2]);
       moduleSlots[moduleNum] = new moduleTypes[moduleType];
     }
+    break;
     case "connect":
     var sourceModuleNum = parseInt(splitMsg[1]);
     var sourceSocketNum = parseInt(splitMsg[2]);
@@ -35,6 +34,7 @@ function sendMessage(msg) {
 function calculatePolyStatus() {
   var checkNum = 0;
   function checkSet(set) {
+    //console.log("checking...");
     var prevConfirmed = set.confirmed;
     set.checkNum ++;
     if(set.hardcodedPoly) {
@@ -43,7 +43,7 @@ function calculatePolyStatus() {
   	}
   	var allMono = true;
   	var allInputsConfirmed = true;
-  	for(i=0;i<set.inputs.length;i++) {
+  	for(var i=0;i<set.inputs.length;i++) {
   		var inputSet = set.inputs[i];
   		if(inputSet.checkNum == checkNum && inputSet != set) checkSet(inputSet);
   		if(inputSet.poly) allMono = false;
@@ -65,7 +65,7 @@ function calculatePolyStatus() {
     set.checkNum = 0;
     set.poly = false;
     set.confirmed = false;
-    for(i=0;i<set.inputs.length;i++) {
+    for(var i=0;i<set.inputs.length;i++) {
   		var inputSet = set.inputs[i];
       if(inputSet.confirmed) resetSet(inputSet);
     }
@@ -76,6 +76,7 @@ function calculatePolyStatus() {
     if(moduleSlots[i].moduleType == "master") masterModule = moduleSlots[i];
   }
   if(masterModule) {
+    console.log("master module found");
     resetSet(masterModule.socketInputs[0].nodeSet);
     while(checkNum<2) {
       checkSet(masterModule.socketInputs[0].nodeSet);
@@ -84,6 +85,7 @@ function calculatePolyStatus() {
   } else {
     console.log("no master module found");
   }
+  console.log("done calculating poly status");
 }
 
 class Module {
@@ -116,14 +118,33 @@ class ModuleVCO extends Module {
     this.socketInputs[0] = new SocketInput("freq cv");
     this.socketOutputs[0] = new SocketOutput("saw out");
     var oscSawSet = new NodeSet();
-    oscSawSet.hardcodedPoly = true;
+    var oscSawFreqSet = new NodeSet();
     for(var i=0; i<polyphony; i++) {
       var o = oscSawSet.nodes[i] = actx.createOscillator();
+      oscSawFreqSet.nodes[i] = o.frequency;
       o.type = "sawtooth";
-      o.frequency.value = 110 + (i * 30 + 50 * Math.random());
+      o.frequency.value = 110;
       o.start();
     }
     oscSawSet.connect(this.socketOutputs[0].nodeSet);
+    oscSawSet.inputs.push(oscSawFreqSet);
+    this.socketInputs[0].nodeSet.connect(oscSawFreqSet);
+  }
+}
+
+class ModuleRandomPolySource extends Module {
+  constructor() {
+    super();
+    this.moduleType = "rps";
+    this.socketOutputs[0] = new SocketOutput("random poly out");
+    var dcSet = new NodeSet();
+    dcSet.hardcodedPoly = true;
+    for(var i=0; i<polyphony; i++) {
+      var c = dcSet.nodes[i] = actx.createConstantSource();
+      c.start();
+      c.offset.value = 400+10*Math.random();
+    }
+    dcSet.connect(this.socketOutputs[0].nodeSet);
   }
 }
 
@@ -167,6 +188,7 @@ class NodeSet {
     for(var i=0; i<polyphony; i++) {
       this.nodes[i].connect(nodeSet.nodes[i]);
     }
+    //calculatePolyStatus();
   }
   disconnect(nodeSet) {
     for(var i=0; i<nodeSet.inputs.length; i++) {
@@ -178,13 +200,23 @@ class NodeSet {
     for(var i=0; i<polyphony; i++) {
       this.nodes[i].disconnect(nodeSet.nodes[i]);
     }
+    //calculatePolyStatus();
   }
 }
 
 var moduleTypes = {
   master: ModuleMaster,
-  vco: ModuleVCO
+  vco: ModuleVCO,
+  rps: ModuleRandomPolySource
 }
 
 sendMessage("/addmodule/master/0");
 sendMessage("/addmodule/vco/1");
+sendMessage("/addmodule/rps/2");
+sendMessage("/addmodule/vco/3");
+
+moduleSlots[1].socketOutputs[0].nodeSet.connect(moduleSlots[0].socketInputs[0].nodeSet);
+moduleSlots[2].socketOutputs[0].nodeSet.connect(moduleSlots[1].socketInputs[0].nodeSet);
+moduleSlots[1].socketOutputs[0].nodeSet.connect(moduleSlots[1].socketInputs[0].nodeSet);
+moduleSlots[3].socketOutputs[0].nodeSet.connect(moduleSlots[0].socketInputs[0].nodeSet);
+moduleSlots[3].socketOutputs[0].nodeSet.connect(moduleSlots[3].socketInputs[0].nodeSet);
