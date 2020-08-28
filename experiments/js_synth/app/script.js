@@ -158,16 +158,16 @@ class ModuleVCO extends Module {
     var curve = new Float32Array(numSamples);
     for(var i=0; i<numSamples; i++) {
       var x = i * 2 / numSamples - 1;
-      curve[i] = Math.pow(2,x*10-3)/10;
-      console.log(i,x,curve[i]);
+      curve[i] = Math.pow(2,x*100-3)/100;
+      //console.log(i,x,curve[i]);
     }
-    console.log(curve);
-    console.log(curve[54]);
+    //console.log(curve);
+    //console.log(curve[54]);
     for(var i=0; i<polyphony; i++) {
       var o = oscSawSet.nodes[i] = actx.createOscillator();
       oscSawFreqSet.nodes[i] = o.frequency;
       var fg = oscSawFreqGain.nodes[i] = actx.createGain();
-      fg.gain.value = 4400;
+      fg.gain.value = 440 * 100;
       var w = waveshapers.nodes[i] = actx.createWaveShaper();
       w.curve = curve;
       o.type = "sawtooth";
@@ -325,8 +325,8 @@ sendMessage("/connect/1/0/0/0");
 var octave = 0;
 setInterval(function(){
   var a = moduleSlots[1].analogInputs[0];
-  a.update(octave/10);
+  //a.update(octave/100);
   //console.log(octave);
   octave += 1;
-  if(octave >= 3) octave = 0;
+  if(octave >= 4) octave = 0;
 }, 200);
