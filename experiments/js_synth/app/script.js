@@ -36,6 +36,12 @@ function sendMessage(msg) {
     var destSocketNum = parseInt(splitMsg[4]);
     moduleSlots[sourceModuleNum].socketOutputs[sourceSocketNum].nodeSet.disconnect(moduleSlots[destModuleNum].socketInputs[destSocketNum].nodeSet);
     break;
+    case "analog":
+    var moduleNum = parseInt(splitMsg[1]);
+    var inputNum = parseInt(splitMsg[2]);
+    var analogValue = parseFloat(splitMsg[3]);
+    moduleSlots[moduleNum].analogInputs[inputNum].update(analogValue);
+    break;
   }
 }
 
@@ -140,6 +146,7 @@ class ModuleVCO extends Module {
     oscSawSet.connect(this.socketOutputs[0].nodeSet);
     oscSawSet.inputs.push(oscSawFreqSet);
     this.socketInputs[0].nodeSet.connect(oscSawFreqSet);
+    this.analogInputs[0].nodeSet.connect(oscSawFreqSet);
   }
 }
 
@@ -162,6 +169,19 @@ class ModuleRandomPolySource extends Module {
 class AnalogInput {
   constructor(label) {
     this.label = label;
+    this.value = 0.5;
+    this.nodeSet = new NodeSet();
+    this.constantSource = actx.createConstantSource();
+    this.constantSource.start();
+    this.update(this.value);
+    for(var i=0; i<polyphony; i++) {
+      var c = this.nodeSet.nodes[i] = this.constantSource;
+    }
+  }
+  update(value) {
+    this.value = value;
+    console.log(this);
+    this.constantSource.offset.value = this.value;
   }
 }
 
