@@ -9,6 +9,23 @@ window.onclick = function() {
   console.log("resume");
 }
 var polyphony = 3;
+var moduleSlots = [];
+
+function sendMessage(msg) {
+  var splitMsg = msg.split("/");
+  splitMsg.shift();
+  var isValid = false;
+  var command = splitMsg[0];
+  switch(command) {
+    case "addmodule":
+    var moduleType = splitMsg[1];
+    if(moduleTypes.hasOwnProperty(moduleType)) {
+      var moduleNum = parseInt(splitMsg[2]);
+      moduleSlots[moduleNum] = new moduleTypes[moduleType];
+    }
+    break;
+  }
+}
 
 class Module {
   constructor() {
@@ -27,8 +44,7 @@ class ModuleMaster extends Module {
       var g = masterGainSet.nodes[i] = actx.createGain();
       g.connect(actx.destination);
     }
-    masterGainSet.nodes[0].connect(actx.destination);
-    this.testSet = masterGainSet;
+    this.socketInputs[0].nodeSet.connect(masterGainSet);
   }
 }
 
@@ -45,7 +61,7 @@ class ModuleVCO extends Module {
       o.frequency.value = 110 + (i * 30 + 50 * Math.random());
       o.start();
     }
-    this.testSet = oscSawSet;
+    oscSawSet.connect(this.socketOutputs[0].nodeSet);
   }
 }
 
@@ -58,12 +74,20 @@ class AnalogInput {
 class SocketInput {
   constructor(label) {
     this.label = label;
+    this.nodeSet = new NodeSet();
+    for(var i=0; i<polyphony; i++) {
+      var g = this.nodeSet.nodes[i] = actx.createGain();
+    }
   }
 }
 
 class SocketOutput {
   constructor(label) {
     this.label = label;
+    this.nodeSet = new NodeSet();
+    for(var i=0; i<polyphony; i++) {
+      var g = this.nodeSet.nodes[i] = actx.createGain();
+    }
   }
 }
 
@@ -83,5 +107,10 @@ class NodeSet {
   }
 }
 
-var v = new ModuleVCO();
-var m = new ModuleMaster();
+var moduleTypes = {
+  master: ModuleMaster,
+  vco: ModuleVCO
+}
+
+sendMessage("/addmodule/master/0");
+sendMessage("/addmodule/vco/1");
