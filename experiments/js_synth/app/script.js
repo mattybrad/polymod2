@@ -6,7 +6,7 @@ window.onclick = function() {
   actx.resume();
   console.log("resume");
 }
-var polyphony = 5;
+var polyphony = 3;
 var moduleSlots = [];
 
 function sendMessage(msg) {
@@ -27,6 +27,14 @@ function sendMessage(msg) {
     var sourceSocketNum = parseInt(splitMsg[2]);
     var destModuleNum = parseInt(splitMsg[3]);
     var destSocketNum = parseInt(splitMsg[4]);
+    moduleSlots[sourceModuleNum].socketOutputs[sourceSocketNum].nodeSet.connect(moduleSlots[destModuleNum].socketInputs[destSocketNum].nodeSet);
+    break;
+    case "disconnect":
+    var sourceModuleNum = parseInt(splitMsg[1]);
+    var sourceSocketNum = parseInt(splitMsg[2]);
+    var destModuleNum = parseInt(splitMsg[3]);
+    var destSocketNum = parseInt(splitMsg[4]);
+    moduleSlots[sourceModuleNum].socketOutputs[sourceSocketNum].nodeSet.disconnect(moduleSlots[destModuleNum].socketInputs[destSocketNum].nodeSet);
     break;
   }
 }
@@ -58,6 +66,7 @@ function calculatePolyStatus() {
     }
     if(!prevConfirmed && set.confirmed) {
       console.log(set.poly ? "poly" : "mono");
+      if(set.socket) set.socket.update();
     }
   }
 
@@ -119,12 +128,14 @@ class ModuleVCO extends Module {
     this.socketOutputs[0] = new SocketOutput("saw out");
     var oscSawSet = new NodeSet();
     var oscSawFreqSet = new NodeSet();
+    var randFreq = 50 + 100 * Math.random();
     for(var i=0; i<polyphony; i++) {
       var o = oscSawSet.nodes[i] = actx.createOscillator();
       oscSawFreqSet.nodes[i] = o.frequency;
       o.type = "sawtooth";
-      o.frequency.value = 110;
+      o.frequency.value = randFreq + i*35;
       o.start();
+      //this.socketInputs[0].nodeSet.nodes[i].gain.value = 100;
     }
     oscSawSet.connect(this.socketOutputs[0].nodeSet);
     oscSawSet.inputs.push(oscSawFreqSet);
@@ -142,7 +153,7 @@ class ModuleRandomPolySource extends Module {
     for(var i=0; i<polyphony; i++) {
       var c = dcSet.nodes[i] = actx.createConstantSource();
       c.start();
-      c.offset.value = 400+10*Math.random();
+      c.offset.value = -1+2*Math.random();
     }
     dcSet.connect(this.socketOutputs[0].nodeSet);
   }
@@ -168,8 +179,15 @@ class SocketOutput {
   constructor(label) {
     this.label = label;
     this.nodeSet = new NodeSet();
+    this.nodeSet.socket = this;
     for(var i=0; i<polyphony; i++) {
       var g = this.nodeSet.nodes[i] = actx.createGain();
+    }
+  }
+  update() {
+    var poly = this.nodeSet.poly;
+    for(var i=0; i<polyphony; i++) {
+      this.nodeSet.nodes[i].gain.value = (poly || i==0) ? 1 : 0;
     }
   }
 }
@@ -182,25 +200,36 @@ class NodeSet {
     this.poly = false;
     this.checkNum = 0;
     this.confirmed = false;
+    this.socket = null;
   }
   connect(nodeSet) {
-    nodeSet.inputs.push(this);
-    for(var i=0; i<polyphony; i++) {
-      this.nodes[i].connect(nodeSet.nodes[i]);
-    }
-    //calculatePolyStatus();
-  }
-  disconnect(nodeSet) {
+    var found = false;
     for(var i=0; i<nodeSet.inputs.length; i++) {
       if(nodeSet.inputs[i]==this) {
+        found = true;
+      }
+    }
+    if(!found) {
+      nodeSet.inputs.push(this);
+      for(var i=0; i<polyphony; i++) {
+        this.nodes[i].connect(nodeSet.nodes[i]);
+      }
+      calculatePolyStatus();
+    }
+  }
+  disconnect(nodeSet) {
+    var found = false;
+    for(var i=0; i<nodeSet.inputs.length; i++) {
+      if(nodeSet.inputs[i]==this) {
+        found = true;
         nodeSet.inputs.splice(i, 1);
         i--;
       }
     }
-    for(var i=0; i<polyphony; i++) {
+    for(var i=0; i<polyphony && found; i++) {
       this.nodes[i].disconnect(nodeSet.nodes[i]);
     }
-    //calculatePolyStatus();
+    if(found) calculatePolyStatus();
   }
 }
 
@@ -214,9 +243,7 @@ sendMessage("/addmodule/master/0");
 sendMessage("/addmodule/vco/1");
 sendMessage("/addmodule/rps/2");
 sendMessage("/addmodule/vco/3");
-
-moduleSlots[1].socketOutputs[0].nodeSet.connect(moduleSlots[0].socketInputs[0].nodeSet);
-moduleSlots[2].socketOutputs[0].nodeSet.connect(moduleSlots[1].socketInputs[0].nodeSet);
-moduleSlots[1].socketOutputs[0].nodeSet.connect(moduleSlots[1].socketInputs[0].nodeSet);
-moduleSlots[3].socketOutputs[0].nodeSet.connect(moduleSlots[0].socketInputs[0].nodeSet);
-moduleSlots[3].socketOutputs[0].nodeSet.connect(moduleSlots[3].socketInputs[0].nodeSet);
+sendMessage("/connect/1/0/0/0");
+//sendMessage("/connect/3/0/0/0");
+//sendMessage("/connect/3/0/1/0");
+//sendMessage("/connect/2/0/1/0");
