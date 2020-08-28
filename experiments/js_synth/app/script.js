@@ -6,7 +6,7 @@ window.onclick = function() {
   actx.resume();
   console.log("resume");
 }
-var polyphony = 3;
+var polyphony = 4;
 var moduleSlots = [];
 
 function sendMessage(msg) {
@@ -20,6 +20,15 @@ function sendMessage(msg) {
     if(moduleTypes.hasOwnProperty(moduleType)) {
       var moduleNum = parseInt(splitMsg[2]);
       moduleSlots[moduleNum] = new moduleTypes[moduleType];
+    }
+    break;
+    case "removemodule":
+    var moduleNum = parseInt(splitMsg[1]);
+    if(moduleSlots[moduleNum]) {
+      console.log("attempt to destroy module");
+      moduleSlots[moduleNum].destroy();
+      moduleSlots[moduleNum] = null;
+      calculatePolyStatus();
     }
     break;
     case "connect":
@@ -88,7 +97,7 @@ function calculatePolyStatus() {
 
   var masterModule;
   for(var i=0; i<moduleSlots.length; i++) {
-    if(moduleSlots[i].moduleType == "master") masterModule = moduleSlots[i];
+    if(moduleSlots[i] && moduleSlots[i].moduleType == "master") masterModule = moduleSlots[i];
   }
   if(masterModule) {
     console.log("master module found");
@@ -108,6 +117,14 @@ class Module {
     this.analogInputs = [];
     this.socketInputs = [];
     this.socketOutputs = [];
+  }
+  destroy() {
+    for(var i=0; i<this.socketInputs.length; i++) {
+      this.socketInputs[i].nodeSet.destroy();
+    }
+    for(var i=0; i<this.socketOutputs.length; i++) {
+      this.socketOutputs[i].nodeSet.destroy();
+    }
   }
 }
 
@@ -216,6 +233,7 @@ class NodeSet {
   constructor() {
     this.nodes = [];
     this.inputs = [];
+    this.outputs = [];
     this.hardcodedPoly = false;
     this.poly = false;
     this.checkNum = 0;
@@ -231,6 +249,7 @@ class NodeSet {
     }
     if(!found) {
       nodeSet.inputs.push(this);
+      this.outputs.push(nodeSet);
       for(var i=0; i<polyphony; i++) {
         this.nodes[i].connect(nodeSet.nodes[i]);
       }
@@ -249,7 +268,27 @@ class NodeSet {
     for(var i=0; i<polyphony && found; i++) {
       this.nodes[i].disconnect(nodeSet.nodes[i]);
     }
-    if(found) calculatePolyStatus();
+    for(var i=0; i<this.outputs.length; i++) {
+      if(this.outputs[i]==nodeSet) {
+        this.outputs.splice(i, 1);
+        i--;
+      }
+    }
+    calculatePolyStatus();
+  }
+  destroy(nodeSet) {
+    var safety = 0;
+    while(this.inputs.length > 0 && safety < 100) {
+      this.inputs[0].disconnect(this);
+      safety ++;
+      console.log(1, safety);
+    }
+    safety = 0;
+    while(this.inputs.length > 0 && safety < 100) {
+      this.disconnect(this.inputs[0]);
+      safety ++;
+      console.log(2, safety);
+    }
   }
 }
 
