@@ -6,7 +6,7 @@ window.onclick = function() {
   actx.resume();
   console.log("resume");
 }
-var polyphony = 4;
+var polyphony = 2;
 var moduleSlots = [];
 
 function sendMessage(msg) {
@@ -147,23 +147,40 @@ class ModuleVCO extends Module {
     super();
     this.moduleType = "vco";
     this.analogInputs[0] = new AnalogInput("tuning");
+    this.analogInputs[1] = new AnalogInput("tuning 2");
     this.socketInputs[0] = new SocketInput("freq cv");
     this.socketOutputs[0] = new SocketOutput("saw out");
     var oscSawSet = new NodeSet();
+    var oscSawFreqGain = new NodeSet();
     var oscSawFreqSet = new NodeSet();
-    var randFreq = 50 + 100 * Math.random();
+    var waveshapers = new NodeSet();
+    var numSamples = 1000;
+    var curve = new Float32Array(numSamples);
+    for(var i=0; i<numSamples; i++) {
+      var x = i * 2 / numSamples - 1;
+      curve[i] = Math.pow(2,x*10-3)/10;
+      console.log(i,x,curve[i]);
+    }
+    console.log(curve);
+    console.log(curve[54]);
     for(var i=0; i<polyphony; i++) {
       var o = oscSawSet.nodes[i] = actx.createOscillator();
       oscSawFreqSet.nodes[i] = o.frequency;
+      var fg = oscSawFreqGain.nodes[i] = actx.createGain();
+      fg.gain.value = 4400;
+      var w = waveshapers.nodes[i] = actx.createWaveShaper();
+      w.curve = curve;
       o.type = "sawtooth";
-      o.frequency.value = randFreq + i*35;
+      o.frequency.value = 0;
       o.start();
-      //this.socketInputs[0].nodeSet.nodes[i].gain.value = 100;
     }
     oscSawSet.connect(this.socketOutputs[0].nodeSet);
     oscSawSet.inputs.push(oscSawFreqSet);
-    this.socketInputs[0].nodeSet.connect(oscSawFreqSet);
-    this.analogInputs[0].nodeSet.connect(oscSawFreqSet);
+    this.socketInputs[0].nodeSet.connect(waveshapers);
+    waveshapers.connect(oscSawFreqGain);
+    oscSawFreqGain.connect(oscSawFreqSet);
+    this.analogInputs[0].nodeSet.connect(waveshapers);
+    this.analogInputs[1].nodeSet.connect(waveshapers);
   }
 }
 
@@ -177,7 +194,7 @@ class ModuleRandomPolySource extends Module {
     for(var i=0; i<polyphony; i++) {
       var c = dcSet.nodes[i] = actx.createConstantSource();
       c.start();
-      c.offset.value = -1+2*Math.random();
+      c.offset.value = -0.1+0.2*Math.random();
     }
     dcSet.connect(this.socketOutputs[0].nodeSet);
   }
@@ -186,7 +203,7 @@ class ModuleRandomPolySource extends Module {
 class AnalogInput {
   constructor(label) {
     this.label = label;
-    this.value = 0.5;
+    this.value = 0;
     this.nodeSet = new NodeSet();
     this.constantSource = actx.createConstantSource();
     this.constantSource.start();
@@ -197,7 +214,6 @@ class AnalogInput {
   }
   update(value) {
     this.value = value;
-    console.log(this);
     this.constantSource.offset.value = this.value;
   }
 }
@@ -306,3 +322,11 @@ sendMessage("/connect/1/0/0/0");
 //sendMessage("/connect/3/0/0/0");
 //sendMessage("/connect/3/0/1/0");
 //sendMessage("/connect/2/0/1/0");
+var octave = 0;
+setInterval(function(){
+  var a = moduleSlots[1].analogInputs[0];
+  a.update(octave/10);
+  //console.log(octave);
+  octave += 1;
+  if(octave >= 3) octave = 0;
+}, 200);
