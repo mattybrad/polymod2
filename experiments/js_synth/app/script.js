@@ -153,6 +153,7 @@ class ModuleVCO extends Module {
     var oscSawSet = new NodeSet();
     var oscSawFreqGain = new NodeSet();
     var oscSawFreqSet = new NodeSet();
+    var wsAtten = new NodeSet();
     var waveshapers = new NodeSet();
     var numSamples = 1000;
     var curve = new Float32Array(numSamples);
@@ -168,6 +169,8 @@ class ModuleVCO extends Module {
       oscSawFreqSet.nodes[i] = o.frequency;
       var fg = oscSawFreqGain.nodes[i] = actx.createGain();
       fg.gain.value = 440 * 100;
+      var wa = wsAtten.nodes[i] = actx.createGain();
+      wa.gain.value = 0.1;
       var w = waveshapers.nodes[i] = actx.createWaveShaper();
       w.curve = curve;
       o.type = "sawtooth";
@@ -176,11 +179,12 @@ class ModuleVCO extends Module {
     }
     oscSawSet.connect(this.socketOutputs[0].nodeSet);
     oscSawSet.inputs.push(oscSawFreqSet);
-    this.socketInputs[0].nodeSet.connect(waveshapers);
+    this.socketInputs[0].nodeSet.connect(wsAtten);
+    wsAtten.connect(waveshapers);
     waveshapers.connect(oscSawFreqGain);
     oscSawFreqGain.connect(oscSawFreqSet);
-    this.analogInputs[0].nodeSet.connect(waveshapers);
-    this.analogInputs[1].nodeSet.connect(waveshapers);
+    this.analogInputs[0].nodeSet.connect(wsAtten);
+    this.analogInputs[1].nodeSet.connect(wsAtten);
   }
 }
 
@@ -325,7 +329,7 @@ sendMessage("/connect/1/0/0/0");
 var octave = 0;
 setInterval(function(){
   var a = moduleSlots[1].analogInputs[0];
-  //a.update(octave/100);
+  a.update(octave/10);
   //console.log(octave);
   octave += 1;
   if(octave >= 4) octave = 0;
