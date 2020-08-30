@@ -1,4 +1,16 @@
-document.getElementById("mainConsole").innerHTML = "This is a test";
+navigator.requestMIDIAccess({sysex:true})
+    .then(onMIDISuccess, onMIDIFailure);
+
+function onMIDISuccess(midiAccess) {
+    console.log(midiAccess);
+
+    var inputs = midiAccess.inputs;
+    var outputs = midiAccess.outputs;
+}
+
+function onMIDIFailure() {
+    console.log('Could not access your MIDI devices.');
+}
 
 var actx = new AudioContext();
 console.log(actx.state);
@@ -19,7 +31,10 @@ function sendMessage(msg) {
     var moduleType = splitMsg[1];
     if(moduleTypes.hasOwnProperty(moduleType)) {
       var moduleNum = parseInt(splitMsg[2]);
-      moduleSlots[moduleNum] = new moduleTypes[moduleType];
+      var m = moduleSlots[moduleNum] = new moduleTypes[moduleType];
+      var element = m.createDomElement();
+      element.id = "module" + moduleNum;
+      document.body.appendChild(element);
     }
     break;
     case "removemodule":
@@ -29,6 +44,8 @@ function sendMessage(msg) {
       moduleSlots[moduleNum].destroy();
       moduleSlots[moduleNum] = null;
       calculatePolyStatus();
+      var element = document.getElementById("module"+moduleNum);
+      document.body.removeChild(element);
     }
     break;
     case "connect":
@@ -125,6 +142,28 @@ class Module {
     for(var i=0; i<this.socketOutputs.length; i++) {
       this.socketOutputs[i].nodeSet.destroy();
     }
+  }
+  createDomElement() {
+    var outer = document.createElement("div");
+    outer.classList.add("module");
+    outer.innerHTML = this.moduleType;
+    var siList = document.createElement("ul");
+    siList.classList.add("socketInputs");
+    outer.appendChild(siList);
+    var soList = document.createElement("ul");
+    soList.classList.add("socketOutputs");
+    outer.appendChild(soList);
+    for(var i=0; i<this.socketInputs.length; i++) {
+      var s = document.createElement("li");
+      s.innerHTML = this.socketInputs[i].label;
+      siList.appendChild(s);
+    }
+    for(var i=0; i<this.socketOutputs.length; i++) {
+      var s = document.createElement("li");
+      s.innerHTML = this.socketOutputs[i].label;
+      siList.appendChild(s);
+    }
+    return outer;
   }
 }
 
