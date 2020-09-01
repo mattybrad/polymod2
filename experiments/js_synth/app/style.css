@@ -1,5 +1,18 @@
 body {
-  background: #333;
-  color: #ff0;
+  background: #666;
+  color: #ccc;
   font-family: monospace;
+  margin: 0px;
+}
+
+.module {
+  display: inline-block;
+  background: black;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #ccc;
+  height: 500px;
+  width: 200px;
+  margin-right: -2px;
+  vertical-align: top;
 }
