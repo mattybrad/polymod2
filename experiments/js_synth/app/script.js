@@ -147,6 +147,7 @@ class ModuleVCO extends Module {
     super();
     this.moduleType = "vco";
     this.analogInputs[0] = new AnalogInput("tuning");
+    this.analogInputs[1] = new AnalogInput("tuning");
     this.socketInputs[0] = new SocketInput("freq cv");
     this.socketOutputs[0] = new SocketOutput("saw out");
     var oscSawSet = new NodeSet();
@@ -156,7 +157,7 @@ class ModuleVCO extends Module {
       var o = oscSawSet.nodes[i] = actx.createOscillator();
       oscSawFreqSet.nodes[i] = o.frequency;
       o.type = "sawtooth";
-      o.frequency.value = randFreq + i*35;
+      o.frequency.value = 0;
       o.start();
       //this.socketInputs[0].nodeSet.nodes[i].gain.value = 100;
     }
@@ -164,6 +165,7 @@ class ModuleVCO extends Module {
     oscSawSet.inputs.push(oscSawFreqSet);
     this.socketInputs[0].nodeSet.connect(oscSawFreqSet);
     this.analogInputs[0].nodeSet.connect(oscSawFreqSet);
+    this.analogInputs[1].nodeSet.connect(oscSawFreqSet);
   }
 }
 
@@ -198,7 +200,7 @@ class AnalogInput {
   update(value) {
     this.value = value;
     console.log(this);
-    this.constantSource.offset.value = this.value;
+    this.constantSource.offset.value = this.value * 550;
   }
 }
 
