@@ -12,14 +12,17 @@
 
 #include <Wire.h>
 bool ledStatus = false;
+bool testMode = false;
 
 void setup()
 {
   pinMode(13, OUTPUT);
-  Serial.begin(9600);
+  if(testMode) Serial.begin(9600);
+  else Serial.begin(31250);
   Wire.begin(); // join i2c bus (address optional for master)
 }
 
+byte numDevicesTemp = 3;
 byte tickNum = 0;
 byte tempMsg[4][4]; // could reduce this to 3 because we know the module number
 
@@ -37,7 +40,7 @@ void loop()
   tickNum++;
 
   if(tickNum == 32) {
-    for(byte n=1; n<=3; n++) {
+    for(byte n=1; n<=numDevicesTemp; n++) {
       Wire.requestFrom(n,18);
       byte x = 0;
       byte numNewConnected = 0;
@@ -49,21 +52,36 @@ void loop()
         x++;
       }
       for(byte i=0; i<numNewConnected + numNewDisconnected; i++) {
-        if(i<numNewConnected) Serial.print("connected ");
-        else Serial.print("disconnected ");
-        Serial.print(tempMsg[i][0], DEC);
-        Serial.print(":");
-        Serial.print(tempMsg[i][1], DEC);
-        Serial.print(" to ");
-        Serial.print(tempMsg[i][2], DEC);
-        Serial.print(":");
-        Serial.print(tempMsg[i][3], DEC);
-        Serial.println("");
+        if(testMode) {
+          if(i<numNewConnected) Serial.print("connected ");
+          else Serial.print("disconnected ");
+          Serial.print(tempMsg[i][0], DEC);
+          Serial.print(":");
+          Serial.print(tempMsg[i][1], DEC);
+          Serial.print(" to ");
+          Serial.print(tempMsg[i][2], DEC);
+          Serial.print(":");
+          Serial.print(tempMsg[i][3], DEC);
+          Serial.println("");
+        } else {
+          Serial.write(B11110000); // start sysex message
+          Serial.write(0x7D); // temporary manufacturer ID
+          if(i<numNewConnected) {
+            Serial.write(2); // connected
+          } else {
+            Serial.write(3); // disconnected
+          }
+          Serial.write(tempMsg[i][0]);
+          Serial.write(tempMsg[i][1]);
+          Serial.write(tempMsg[i][2]);
+          Serial.write(tempMsg[i][3]);
+          Serial.write(B11110111); // end message
+        }
       }
     }
     tickNum = 0;
-    delay(1);
+    delayMicroseconds(10);
   }
 
-  delay(1);
+  delayMicroseconds(10);
 }

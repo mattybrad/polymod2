@@ -6,6 +6,27 @@ function onMIDISuccess(midiAccess) {
 
     var inputs = midiAccess.inputs;
     var outputs = midiAccess.outputs;
+
+    for (var input of midiAccess.inputs.values()) {
+        input.onmidimessage = getMIDIMessage;
+    }
+
+    function getMIDIMessage(ev) {
+      var bytes = ev.data;
+      if(bytes[0] == 0xF0 && bytes[1] == 0x7D) {
+        // sysex message, correct manufacturer ID
+        switch(bytes[2]) {
+          case 2:
+          console.log("connection", bytes[3],bytes[4],bytes[5],bytes[6]);
+          sendMessage("/connect/"+[bytes[3],bytes[4],bytes[5],bytes[6]].join("/"));
+          break;
+          case 3:
+          console.log("disconnection", bytes[3],bytes[4],bytes[5],bytes[6]);
+          sendMessage("/disconnect/"+[bytes[3],bytes[4],bytes[5],bytes[6]].join("/"));
+          break;
+        }
+      }
+    }
 }
 
 function onMIDIFailure() {
@@ -357,19 +378,6 @@ var moduleTypes = {
   rps: ModuleRandomPolySource
 }
 
-sendMessage("/addmodule/master/0");
-sendMessage("/addmodule/vco/1");
-sendMessage("/addmodule/rps/2");
-sendMessage("/addmodule/vco/3");
-sendMessage("/connect/1/0/0/0");
-//sendMessage("/connect/3/0/0/0");
-//sendMessage("/connect/3/0/1/0");
-//sendMessage("/connect/2/0/1/0");
-var octave = 0;
-setInterval(function(){
-  var a = moduleSlots[1].analogInputs[0];
-  a.update(octave/10);
-  //console.log(octave);
-  octave += 1;
-  if(octave >= 4) octave = 0;
-}, 200);
+sendMessage("/addmodule/master/1");
+sendMessage("/addmodule/vco/2");
+sendMessage("/addmodule/rps/3");
