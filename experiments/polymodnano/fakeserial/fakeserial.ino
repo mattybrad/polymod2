@@ -14,7 +14,8 @@ byte unchangedCount[4];
 byte everConnected[4];
 
 void setup() {
-  moduleNum = EEPROM.read(0);
+  //moduleNum = EEPROM.read(0);
+  moduleNum = 3;
   pinMode(13, OUTPUT);
   Serial.begin(9600);
   Wire.begin(moduleNum);

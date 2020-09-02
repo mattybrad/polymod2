@@ -12,7 +12,7 @@
 
 #include <Wire.h>
 bool ledStatus = false;
-bool testMode = false;
+bool testMode = true;
 
 void setup()
 {
@@ -22,7 +22,7 @@ void setup()
   Wire.begin(); // join i2c bus (address optional for master)
 }
 
-byte numDevicesTemp = 3;
+byte numDevicesTemp = 2;
 byte tickNum = 0;
 byte tempMsg[4][4]; // could reduce this to 3 because we know the module number
 
@@ -80,8 +80,8 @@ void loop()
       }
     }
     tickNum = 0;
-    delayMicroseconds(10);
+    delayMicroseconds(100);
   }
 
-  delayMicroseconds(10);
+  delayMicroseconds(100);
 }
