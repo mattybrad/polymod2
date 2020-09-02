@@ -1,0 +1,9 @@
+byte 0-2 - manufacturer id
+byte 3 - message type (module_connected/module_disconnected/connect/disconnect/analog/digital)
+
+byte 4 (mc) - module number
+byte 5 (mc) - module number (byte 2)
+byte 6 (mc) - module type
+byte 7 (mc) - module type (byte 2)
+
+byte 4 (mc)
