@@ -3,12 +3,13 @@
 
 byte idPin = 10;
 int moduleNum = 0;
-int moduleType = 15; // will be different for a VCO, LFO, etc
+int moduleType = 43; // will be different for a VCO, LFO, etc
 unsigned long lastRead = 0;
 bool foundModuleNum = false;
 const byte socketOutPins[] = {2,3,4,5};
 const byte socketInPins[] = {6,7,8,9};
 const byte digitalOutPins[] = {13,12};
+const byte analogPins[] = {A0,A1,A2,A3,A6,A7};
 byte prevConnections[4][2];
 byte newConnections[4][2];
 byte prevConfirmedConnections[4][2];
@@ -17,7 +18,8 @@ byte unchangedCount[4];
 bool sendConnection[4];
 bool sendDisconnection[4];
 byte everConnected[4];
-int storedAnalogValues[2];
+byte storedAnalogValues[6];
+bool analogChanges[6] = {false, false, false, false, false, false};
 
 Bounce b = Bounce();
 Bounce b2 = Bounce();
@@ -114,49 +116,53 @@ void requestEvent() {
       }
     }
 
-    // todo next: calculate number of bytes to be sent
-    
-    int testAnalogValue = analogRead(0);
-    bool sendChange = false;
-    if(testAnalogValue!=storedAnalogValues[0]) {
-      sendChange = true;
-      storedAnalogValues[0] = testAnalogValue;
-    }
     if(!numBytesSent) {
-      if(sendChange) Wire.write(3); // sending 3 bytes for testing
-      else Wire.write(0);
-      numBytesSent = sendChange;
+      // calculate and send number of bytes to be expected
+      byte numBytesToSend = 0;
+      numBytesToSend += numNewConnected * messageLengths[6];
+      numBytesToSend += numNewDisconnected * messageLengths[7];
+      for(byte i=0; i<6; i++) {
+        byte newAnalogReading = analogRead(analogPins[i]) / 4;
+        if(newAnalogReading != storedAnalogValues[i]) {
+          storedAnalogValues[i] = newAnalogReading;
+          analogChanges[i] = true;
+          numBytesToSend += messageLengths[2];
+        } else {
+          analogChanges[i] = false;
+        }
+      }
+      Wire.write(numBytesToSend);
+      numBytesSent = numBytesToSend > 0;
     } else {
-      byte lowRes = testAnalogValue/4;
-      Wire.write(2);
-      Wire.write(0);
-      Wire.write(lowRes);
+      // send expected data
+      for(byte i=0; i<6; i++) {
+        if(analogChanges[i]) {
+          Wire.write(2); // analog message
+          Wire.write(i); // channel
+          Wire.write(storedAnalogValues[i]); // value
+        }
+      }
+      for(byte i=0; i<4; i++) {
+        if(sendConnection[i]) {
+          Wire.write(6); // connection message
+          Wire.write(confirmedConnections[i][0]);
+          Wire.write(confirmedConnections[i][1]);
+          Wire.write(moduleNum);
+          Wire.write(i);
+          sendConnection[i] = false;
+        }
+        if(sendDisconnection[i]) {
+          Wire.write(7); // disconnection message
+          Wire.write(prevConfirmedConnections[i][0]);
+          Wire.write(prevConfirmedConnections[i][1]);
+          Wire.write(moduleNum);
+          Wire.write(i);
+          sendDisconnection[i] = false;
+        }
+      }
       numBytesSent = false;
     }
-    //Wire.write(numNewConnected);
-    //Wire.write(numNewDisconnected);
-    for(byte i=0; i<4; i++) {
-      if(sendConnection[i]) {
-        /*Wire.write(6); // connection message
-        Wire.write(confirmedConnections[i][0]);
-        Wire.write(confirmedConnections[i][1]);
-        Wire.write(moduleNum);
-        Wire.write(i);*/
-        sendConnection[i] = false;
-      }
-    }
-    for(byte i=0; i<4; i++) {
-      if(sendDisconnection[i]) {
-        /*Wire.write(7); // disconnection message
-        Wire.write(prevConfirmedConnections[i][0]);
-        Wire.write(prevConfirmedConnections[i][1]);
-        Wire.write(moduleNum);
-        Wire.write(i);*/
-        sendDisconnection[i] = false;
-      }
-    }
   }
-  
 }
 
 void doTick() {

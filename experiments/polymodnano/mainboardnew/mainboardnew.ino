@@ -38,11 +38,11 @@ void setup()
       digitalWrite(latchPin, LOW);
       shiftOut(dataPin, clockPin, MSBFIRST, thisByte);
       digitalWrite(latchPin, HIGH);
-      delay(3);
+      delay(30);
       digitalWrite(latchPin, LOW);
       shiftOut(dataPin, clockPin, MSBFIRST, B00000000);
       digitalWrite(latchPin, HIGH);
-      delay(3);
+      delay(30);
     }
   }
   
@@ -94,7 +94,11 @@ void loop()
           // message complete, handle command
           switch(thisMessage[0]) {
             case 6:
-            Serial.println("connection");
+            Serial.print("connection ");
+            Serial.print(thisMessage[1]);
+            Serial.print(thisMessage[2]);
+            Serial.print(thisMessage[3]);
+            Serial.println(thisMessage[4]);
             break;
 
             case 7:
@@ -110,9 +114,7 @@ void loop()
             byte digiVal = (thisMessage[2]/8)%2;
             Wire.write(digiChan);
             Wire.write(digiVal);
-            Wire.endTransmission();    // stop transmitting
-            Serial.println(digiChan);
-            Serial.println(digiVal);
+            Wire.endTransmission();
           }
           byteNum = 0;
         }
@@ -121,6 +123,6 @@ void loop()
     tickNum = 0;
     delayMicroseconds(10);
   }
-
+  delay(5);
   delayMicroseconds(10);
 }
