@@ -2,13 +2,13 @@
 #include <Wire.h>
 
 byte idPin = 10;
-byte ledPin = 13;
 int moduleNum = 0;
-int moduleType = 12; // will be different for a VCO, LFO, etc
+int moduleType = 15; // will be different for a VCO, LFO, etc
 unsigned long lastRead = 0;
 bool foundModuleNum = false;
-const byte outPins[] = {2,3,4,5};
-const byte inPins[] = {6,7,8,9};
+const byte socketOutPins[] = {2,3,4,5};
+const byte socketInPins[] = {6,7,8,9};
+const byte digitalOutPins[] = {13,12};
 byte prevConnections[4][2];
 byte newConnections[4][2];
 byte prevConfirmedConnections[4][2];
@@ -17,43 +17,53 @@ byte unchangedCount[4];
 bool sendConnection[4];
 bool sendDisconnection[4];
 byte everConnected[4];
+int storedAnalogValues[2];
 
 Bounce b = Bounce();
+Bounce b2 = Bounce();
 
 void setup() {
   while(!Serial);
   Serial.begin(9600);
+
+  // init pins and connection variables
   for(byte i=0;i<4;i++) {
-    pinMode(outPins[i], OUTPUT);
-    pinMode(inPins[i], INPUT_PULLUP);
+    pinMode(socketOutPins[i], OUTPUT);
+    pinMode(socketInPins[i], INPUT_PULLUP);
     prevConnections[i][0] = 255;
     prevConnections[i][1] = 255;
   }
+  for(byte i=0; i<2; i++) {
+    pinMode(digitalOutPins[i], OUTPUT);
+  }
   b.attach(idPin, INPUT);
-  b.interval(5);
-  pinMode(ledPin, OUTPUT);
-  delay(2000);
+  b.interval(1);
+  
+  delay(1000); // wait for main module to boot up
   lastRead = millis();
   Serial.println("listening...");
 }
 
 void loop() {
-  b.update();
-  if(b.rose()) {
-    moduleNum ++;
-    lastRead = millis();
+  if(!foundModuleNum) {
+    b.update();
+    if(b.rose()) {
+      moduleNum ++;
+      lastRead = millis();
+    }
+    if(!foundModuleNum && millis() > lastRead + 50 && moduleNum > 0) {
+      foundModuleNum = true;
+      Wire.begin(moduleNum);
+      TWAR = (moduleNum << 1) | 1; // enable broadcasts to be received http://www.gammon.com.au/i2c
+      Wire.onReceive(receiveEvent);
+      Wire.onRequest(requestEvent);
+      Serial.print("module type ");
+      Serial.print(moduleType);
+      Serial.print(" found in slot ");
+      Serial.println(moduleNum);
+    }
   }
-  if(!foundModuleNum && millis() > lastRead + 2000 && moduleNum > 0) {
-    foundModuleNum = true;
-    Wire.begin(moduleNum);
-    TWAR = (moduleNum << 1) | 1; // enable broadcasts to be received http://www.gammon.com.au/i2c
-    Wire.onReceive(receiveEvent);
-    Wire.onRequest(requestEvent);
-    Serial.print("module type ");
-    Serial.print(moduleType);
-    Serial.print(" found in slot ");
-    Serial.println(moduleNum);
-  }
+  b2.update();
 }
 
 byte byteNum = 0;
@@ -71,6 +81,14 @@ void receiveEvent(int howMany) {
         case 0:
         tickNum = message[1];
         doTick();
+        break;
+        
+        case 5:
+        byte channelNum = message[1];
+        if(channelNum <= 1) {
+          digitalWrite(digitalOutPins[channelNum], message[2]);
+        }
+        break; 
       }
       byteNum = 0;
     }
@@ -95,14 +113,24 @@ void requestEvent() {
         numNewDisconnected ++;
       }
     }
+
+    // todo next: calculate number of bytes to be sent
+    
+    int testAnalogValue = analogRead(0);
+    bool sendChange = false;
+    if(testAnalogValue!=storedAnalogValues[0]) {
+      sendChange = true;
+      storedAnalogValues[0] = testAnalogValue;
+    }
     if(!numBytesSent) {
-      Wire.write(3); // sending 3 bytes for testing
-      numBytesSent = true;
+      if(sendChange) Wire.write(3); // sending 3 bytes for testing
+      else Wire.write(0);
+      numBytesSent = sendChange;
     } else {
+      byte lowRes = testAnalogValue/4;
       Wire.write(2);
       Wire.write(0);
-      int testAnalogValue = analogRead(0) / 4;
-      Wire.write(testAnalogValue);
+      Wire.write(lowRes);
       numBytesSent = false;
     }
     //Wire.write(numNewConnected);
@@ -143,18 +171,18 @@ void doTick() {
     // write phase
     for(byte i=0; i<4; i++) {
       if(phaseIndex<8) {
-        digitalWrite(outPins[i], bitRead(moduleNum, phaseIndex));
+        digitalWrite(socketOutPins[i], bitRead(moduleNum, phaseIndex));
       } else {
-        digitalWrite(outPins[i], bitRead(i, phaseIndex - 8));
+        digitalWrite(socketOutPins[i], bitRead(i, phaseIndex - 8));
       }
     }
   } else {
     // read phase
     for(byte i=0; i<4; i++) {
       if(phaseIndex<8) {
-        bitWrite(newConnections[i][0], phaseIndex, digitalRead(inPins[i]));
+        bitWrite(newConnections[i][0], phaseIndex, digitalRead(socketInPins[i]));
       } else {
-        bitWrite(newConnections[i][1], phaseIndex - 8, digitalRead(inPins[i]));
+        bitWrite(newConnections[i][1], phaseIndex - 8, digitalRead(socketInPins[i]));
       }
     }
   }

@@ -12,16 +12,25 @@ void setup()
 {
   while(!Serial);
   Serial.begin(9600);
+
+  // init pins
   pinMode(latchPin, OUTPUT);
   pinMode(clockPin, OUTPUT);
   pinMode(dataPin, OUTPUT);
   pinMode(13, OUTPUT);
+
+  
   Serial.println("polymod main board started");
   Wire.begin(); // join i2c bus (address optional for master)
+  
+  // init ID shift register
   digitalWrite(latchPin, LOW);
   shiftOut(dataPin, clockPin, MSBFIRST, B00000000);
   digitalWrite(latchPin, HIGH);
-  delay(5000); // allow modules to power up
+  
+  delay(2000); // allow modules to power up
+  
+  // for each module number, send different number of pulses
   for(int i=0;i<maxModules;i++) {
     byte thisByte = 0;
     bitWrite(thisByte,i,HIGH);
@@ -29,14 +38,16 @@ void setup()
       digitalWrite(latchPin, LOW);
       shiftOut(dataPin, clockPin, MSBFIRST, thisByte);
       digitalWrite(latchPin, HIGH);
-      delay(10);
+      delay(3);
       digitalWrite(latchPin, LOW);
       shiftOut(dataPin, clockPin, MSBFIRST, B00000000);
       digitalWrite(latchPin, HIGH);
-      delay(10);
+      delay(3);
     }
   }
-  delay(3000);
+  
+  delay(100); // wait for modules to be sure of their IDs
+  
   for(int i=0; i<maxModules; i++) {
     moduleTypes[i] = 0; // default to type 0 (no module connected)
     Wire.beginTransmission(i+1); // broadcast to all modules
@@ -67,14 +78,15 @@ void loop()
 
   if(tickNum == 32) {
     // on last tick, request data from all modules
-    for(byte n=0; n<=maxModules; n++) {
+    for(uint8_t n=0; n<=maxModules; n++) {
       Wire.requestFrom(n+1,1); // request data
-      byte bytesExpected = 0;
+      uint8_t bytesExpected = 0;
       while(Wire.available()) {
         bytesExpected = Wire.read();        
       }
       byte byteNum = 0;
-      Wire.requestFrom(n+1,bytesExpected);
+      uint8_t channelNum = n+1;
+      Wire.requestFrom(channelNum,bytesExpected);
       while(Wire.available()) {
         thisMessage[byteNum] = Wire.read();
         byteNum ++;
@@ -92,6 +104,15 @@ void loop()
             case 2:
             Serial.print("analog value: ");
             Serial.println(thisMessage[2]);
+            Wire.beginTransmission(channelNum); // broadcast to all modules
+            Wire.write(5); // message type 0 (tick)
+            byte digiChan = thisMessage[2]/128;
+            byte digiVal = (thisMessage[2]/8)%2;
+            Wire.write(digiChan);
+            Wire.write(digiVal);
+            Wire.endTransmission();    // stop transmitting
+            Serial.println(digiChan);
+            Serial.println(digiVal);
           }
           byteNum = 0;
         }
